@@ -9,6 +9,11 @@
     - Example:  \<duck\> $\leq$ \<bird\> $\leq$ \<organism\>
 
 - Type Safety: Basically, we can use a type in a given context, without risking a run-time error.
+- Liskov Substitution Principle/. Suppose S $\leq$ T. Then:
+$S \leq T \rightarrow \forall x:T.p(x)\rightarrow \forall y: S.p(y)$
+
+Basically, if S is a subtype of T, this implies that if we have a provable property for the supertype, such a property is also provable for the subtype.
+
 - Metallic Core (Gold, Zinc...): When these are referenced, we are referring to cores with different variance relations imposed on them.
 - Wet gate: A gate tha relies on generality.
 - Dry Gate: Our "standard" gate we learned in Basic Hoon. This can be extended with variance relations.
@@ -31,7 +36,9 @@ Let A, B be types, let $\leq$ be a type ordering relation. If I is a type constr
 - Example: A function that reverses a list. The list item types don't matter at all.
 
 Practically speaking, Parametric Polymorphism gives us flexibility of type for our gate. Variance defintes sets of rules for gates to evaluate.
-
+- **(!! Remember !!)**
+    - **Parametric Polymorphism gives us Wet Gate Polymorphism**
+    - **Variance Relations gives us Dry Gate Polymorphism**
 ### Wet v.s Dry Gates:
 
 For elementary Hoon, we are exposed to the dry gate without even knowing it. This involves using a bar-cen (|%) core, or for most small programming problems, the gate definition (|=) (which is equivalent to a =+, |% with a $ arm).
@@ -105,6 +112,51 @@ here, we try to use an @ud as a gate call. Obviously, there is no $ arm to call.
 
 **Why do we use wet gates?**  When the typing information isn't well characterized beforehand, or we deal with problems where typing just doesnt matter (such as our doubling cell problem, above)
 
+### Making P.P Strucutres:
+
+The barbuc (|$) rune is used for this. This is how non-typed containers are are defined in hoon.hoon: For Example:
+
+```
+++  list
+  |$  [item]
+  ::    null-terminated list
+  ::
+  ::  mold generator: produces a mold of a null-terminated list of the
+  ::  homogeneous type {a}.
+  ::
+  $@(~ [i=item t=(list item)])
+
+```
+
+### Metallic Cores:
+
+- This is about Dry Gate Polymorphism. It works by substituting cores
+
+-  **"For core b to nest within core a, the batteries of a and b must (i) have the same tree shape, and (ii) the product of each b arm must nest within the product of the a arm."**
+
+- we also apply a payload test. This is where the "rules of variance" are applied and used.
+
+- Key Idea: Variance rules apply to the input and output of a core, not directly to the core itself.
+
+- "You are able to use core-variance rules to create programs which take other programs as arguments"
+
+- "core variance ... since it impinges on how cores evaluate with other cores as inputs"
+
+- A summary table of the metallic cores is below:
+
+| Metal: | Relation: | Wat? | Involves: | Pay Load: | Context: | Cast Rune: | Other Notes: |
+|---|---|---|---|---|---|---|---| 
+| Zinc | Covariance | Specific Type Nests in Generic Type | Output | Read Only | Opaque |  ^& | PP Rep: "&" |
+| Iron | Contravariance | Generic Type Nests in Specific Type | Input | Write Only | Opaque | \|~ |  PP Rep: "|" |
+| Lead | Bivariant | Either/Or | ??? | Opaque | Opaque | \|? |  Rare - for completeness. PP rep: "?" |
+| Gold | Invariant | Types mutually nest | Inputs and Outputs | Read and Write | Read and Write | NA |  Common everyday core. PP Rep: "." |
+---
+
+- Core terms of casting:  Gold -> {Zinc, Iron} 
+- Because Lead Cores don't have a payload or sample, |? creates a lead trap.
+- Define Opaquness to mean: Not exported to namespace, and cannot read and write.
+- Payload address: +6.z
+- Context Address: +7.z
 
 ### Outstanding Questions:
 
