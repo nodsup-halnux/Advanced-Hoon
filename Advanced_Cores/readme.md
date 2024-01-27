@@ -1,10 +1,10 @@
 ## Advanced Cores:
 
-### Glossary:
+### Glossary[0]:
 
 - code-as-data: Recall: `[battery [sample context]]` or `[battery payload]`
 - context: Exposed namespace, but for our purposes its the Payload Tail.
-- sample: (our effective input), for gates (practically speaking)...
+- sample: (our effective input), for gates.
 - Subtype: a datatype, related to another datatype via the notion of substitutability. Wherever the supertype is used, the subtype can typically be used. We can represent this with an ordering relation $\leq$. 
 - Polymorphism: A programming paradigm that allows us to build code that uses different types at different times, during the compilation/run-time lifecycle.
 - complex-type: a type formed from a union of more primitive language types, thorugh a struct, object, cell, etc.
@@ -34,8 +34,6 @@ Let A, B be types, let $\leq$ be a type ordering relation. If $\mathbb{I}$ is a 
 - Variant: if $A \leq B$ then co/con/bi-variance.
 - Invariant: not Variant. So any other case where our relations just don't hold.
 
-
-
 (2) Parametric Polymorphism (Generality):  Write functions/data-types in a way to operate on values of any type, without losing type safety.
 
 - Example: A function that reverses a list exhibits Generality. The list item types don't matter at all, as the function just moves them around without inspecting them - no type inference needed.
@@ -45,6 +43,7 @@ Practically speaking, Parametric Polymorphism gives us flexibility of type for o
 - **(!! Remember !!)**
     - **Parametric Polymorphism gives us Wet Gate Polymorphism**
     - **Variance Relations gives us Dry Gate Polymorphism**
+
 ### Wet v.s Dry Gates:
 
 For elementary Hoon, we are exposed to the dry gate without even knowing it. This involves using a bar-cen (|%) core, or for most small programming problems, the gate definition (|=) (which is equivalent to a =+, |% with a $ arm).
@@ -169,7 +168,7 @@ The barbuc (|$) rune is used for this. This is how non-typed containers are are 
 - Because Lead Cores don't have a payload or sample, |? creates a lead trap.
 - *Opaquness means:* Not exported to namespace, and cannot read and write.
 - Payload address: +6.z (recall this is sample and context!)
-- Context (Tail) Address: +7.z
+- Context (Payload Tail) Address: +7.z
 
 ### Investigating in Depth:
 #### Zinc Cores:
@@ -228,9 +227,9 @@ payload-block
 
 Suppose we have a computation {X} that accepts a zinc-gates.  Now consider a new zinc-gate, that has the same shape as our input gate, a covariant relationship with our original gate. So its sample, and/or product of its arms are subtypes of the original gate (they all nest). We now use this new gate in our computation {X}. 
 
-**So why make the sample read-only, and turn our gate into a sink?
+**So why make the sample read-only, and turn our gate into a source?**
 
-Suppose that writing to the sample **was not blocked**, an unscrupulous user/computation {X} could write a non-nested sample at RT, and break type safety. We only know things are safe when we cast the gate, not when the gate is used later on. So to ensure safety, we make it a read-only sink.
+One Reason: Suppose that writing to the sample **was not blocked**, an unscrupulous computation {X} could write a non-nested sample at RT, and break type safety. We only know things are safe when we cast the gate, not when the gate is used later on. So to ensure safety, we make it a read-only sink.
 
 
 #### Iron Cores:
@@ -287,7 +286,7 @@ a.iron-gate
 
 Again, consider a computation {X} that accepts iron-cores of a certain shape. Relative to our interface, we cast a specific iron-core that has a contravariant relationship - so the sample can be a super-type, and the return type of the computational arms can be a super-type.
 
-**So why is the sample write-only?** Consider the fact that our sample is a super-type - and has a default value. It could be the case that this default value falls outside of the output scope of our computation {X}. So if we call our iron-gate with such a default value, we can produce an output that is completely outside our type nesting (consider {SuperSet} - {Subset} as our output). So we force computation {X} to write a type-safe value to the sample - by restricting read access. This way, {X} must know to put a type safe input in our iron-gate when used, helping to ensure a type-safe output.
+**So why is the sample write-only?** Consider the fact that our sample is a super-type - and has a default value. It could be the case that this default value falls outside of the output scope of our computation {X}. So if we call our iron-gate with such a default value, we can produce an output that is completely outside our type nesting (consider {SuperSet} - {Subset} as our output). So we force computation {X} to write a type-safe value to the sample - by restricting read access. This way, {X} must take care and know to put a type safe input in our iron-gate when used, helping to ensure a type-safe output.
 
 
 #### Lead Cores:
@@ -316,13 +315,11 @@ Quickly:
 >22
 ```
 
-As obtuse as Lead Cores appear, the reasons for the payload and context opacity follows from Variance Definitions: Lead Cores are Bivariant. So the reasons we had for Zinc and Iron cores having restricted payloads both apply, making the payload completely opaque (no read or write!)
+As obtuse as Lead Cores appear, the reason for payload opaqueness is simple enough: it is just the reasons we had for Zinc and Iron cores.
 
-
-### Outstanding Questions:
-
-In (3) why do we compare the new formula to the old formula? Can it sometimes change, based on the input?
 
 ## References:
 
+[0]: Various topics on Wikipedia, and some questions to chatGPT were asked, to aid in the creation of the Glossary Section.
 [1]: Example taken from timluc-miptev's [Wet Gate tutorial](https://blog.timlucmiptev.space/wetgates.html). Not my own!
+[2]: Page on Generic and Variant Cores: https://docs.urbit.org/courses/hoon-school/R-metals#illustrations
