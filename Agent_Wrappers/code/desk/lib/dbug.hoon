@@ -27,6 +27,8 @@
   !.
    :: 10 arms inside a door
   |_  =bowl:gall
+  :: this is a tistar virtual arm expression. It will
+  ::be inserted into the front of every arm below.
   +*  this  .
       ag    ~(. agent bowl)
   ::  Poke Arm - most fleshed out because we interact this way
