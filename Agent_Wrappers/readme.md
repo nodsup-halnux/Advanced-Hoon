@@ -339,6 +339,12 @@ So in comparision to default-agent, **dbug really is a wrapper!**
 
 ## Practical Exercise: 
 
+Let's build a simple library that wraps a Gall agent, and provides developer support.  Our library will aim to do two things:
+
+1) Take the %app-name, and map and perform an arvo call to connect to a Sail webpage on the front-end. We will name our sail page %app-name-debug (just append debug to it).
+
+2) Like dbug, we will pipe through every arm to the underlying application, if we detect. Our underlying application will have basic ++on-poke and ++on-watch logic (just taken from echo as filler...)
+
 
 ### References:
 
