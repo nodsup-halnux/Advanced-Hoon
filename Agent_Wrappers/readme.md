@@ -1,10 +1,10 @@
 ## On Agent Wrappers:
 
-This mini-project is about how agent wrappers work. How they are built and structured, how they wrap around gall agents (and just what gall agents are, in terms of code-as-data and structures). I'll also make a simple agent wrapper and play around with it. While were at it, we might as well learn about versioned state for Gall Agents as well. 
+This mini-project is about how agent wrappers work. How they are built and structured, how they wrap around gall agents (and just what gall agents are, in terms of code-as-data and structures). I'll also make a simple agent wrapper and play around with it. 
 
 ###  Summary of Gall and Gall Apps:
 
-Let's ignore the Arvo OS, right now, and fix our root to be Gall. The Gall Vane maintains all running agents and apps for a given ship, and acts as a bridge between the apps (via local/remote pokes, for example), passing messages to-and-fro.
+Let's ignore the Arvo OS, right now, and fix our root to be Gall. The Gall Vane maintains all running agents and apps for a given ship, and acts as a bridge between the apps (via local/remote pokes, for example), passing messages to-and-fro. Lets summarize some points about agents:
 
 - Conceptually, an agent is a state machine: A new state is a function of the previous state, and an input event.
 - Practically, an agent is a *door with 10 arms*. With a `+$bowl` as a pinned sample, which all arms may access.
@@ -12,27 +12,24 @@ Let's ignore the Arvo OS, right now, and fix our root to be Gall. The Gall Vane 
 - Interaction is done with subscriptions, and pokes. This involves the *poke, watch and agent arms*.
 - Every arm must produce a card (to send to another agent, or to the agent itself to perform more actions).
 - Data being sent to other agents (via cards) must be searialized via *vases and cages*.
-    - A vase is a pair that includes a type, and any piece of data that is an uptyped noun. We extract the type, and serialize the data and send it off. On the other end, we read the vase type head, and then cast our untyped data to recover the structure.
-    - A cage is a pair of mark and vase. Rather than casting, this allows for more complex parsing of our vase.
 - State: 
     - In sys/lull.hoon, our def is wrapped in a `^|` **iron contravariance** cast rune. This means we can substitute in any core that has samples and arm types that are supersets of our currently defined core. 
         - This also means our payload is write-only, 
-        - and payload-tail is opaque to Gall.
-        - When we rewrite our bowl, 
+        - ...and payload-tail is opaque to Gall (???)
 
 
-- We need a conceptual model of Gall. In the core school curriculum, Galls actual implementation is quite complicated (see picture below). 
+
+- We need a conceptual model of Gall. In the core school curriculum, Gall's actual implementation is quite complicated (see picture below). 
     - Lets just assume that Gall is just a massive core with many nested arms, that Arvo can invoke when needed.
-    - Inside Gall, is some kind of structure that maps agent names to agent cores
-    - The agent cores themselves are just our standard 10 arm door, or one of our wrappers around a 10 armed door.
+    - Inside Gall, we imagine *some kind of structure that maps agent names to agent cores.*, as an abstraction.
+
 
 An actual execution pathway for poking an agent is below is seen below  (ca_gall):
 
 ![Poke Path](./img/poke_path.png)
 
 **Notes:**
-- `++mo`: Arvo Move Handler
-- `++ap`: Agent Level Core
+- `++mo`: Arvo Move Handler. `++ap`: Agent Level Core
 - *"To run an agent, we have to know the state of the agent, which includes its state and relevant bowl information"*
     - this is all stored in a `+$ yoke` structure
 
@@ -41,24 +38,23 @@ An actual execution pathway for poking an agent is below is seen below  (ca_gall
     - So our `++ap` arm prepares the yoke, which stores bowl and relevent state information, and supplies it to our sitting agent core.
     - Once setup is done, the relevent agent arm (poke) is called with sample and bowl supplied, and then it runs. It ends with a potential state change, and a list of cards.
     - `++ap-abet` carries the list of cards back to `++mo`, and the modified agent state, which must be saved.
-    - With a list of cards, the cycle can continue again until no cards are left.
+    - With a list of cards, the cycle can continue again and again until no cards are left.
 
-### Simple Example: Understanding how default-agent works:
+### How *default-agent* works:
 
 Going through line by line:
 
 ```hoon
 
-::Import the skeleton core. Just crashes on everything - otherwise empty.
+::Skeleton just crashes on everything - ow empty.
 /+  skeleton
-::  Wet gate defined with bartar. What's really going on?  
+::  Wet gate defined with bartar. 
 ::  Bartar is a one armed core, so ?: is in our default $ arm slot.
 ::  We check the help arg, and in the false case, we define skeleton 
 :: (which has a compiled core attached to the name).  
 |*  [agent=* help=*]
-    ::Likely, if a '&' flag is passed with () call, we give a message.
+message.
 ?:  ?=(%& help)
-   :: ~| tracing printf with message below
   ~|  %default-agent-helpfully-crashing
   ::the skeleton core itself. Just a basic Agent Door, with no short forms.
   ::No imports, just use Gall Basic structures.
@@ -68,10 +64,10 @@ Going through line by line:
 Next our modified door is present. Only arms of significance are included.
 
 ```hoon 
-::Just another door with a bowl.
-::Recall, when |% or another core building rune is encountered, we immediately take a snapshot of the subject.
-::So this means the skeleton core is included in our payload of our door. 
-::Once our core def ends, the hoon compiler looks  for a call right after the definition.
+::Recall, when |% or another core building rune is encountered, 
+::we immediately take a snapshot of the subject. So this means the skeleton core is included in our payload of our door. 
+::Once our core def ends, the hoon compiler looks  for a call right 
+::after the definition.
 |_  =bowl:gall
 
 ::Notice the unit cell with the agent strucure from Gall. No "this"
@@ -102,6 +98,7 @@ Finally, how is default agent used in a standard agent? Like so:
 +$  card  card:agent:gall
 ::End of core !!
 --
+::Peeking around the corner of our --...another door.
 ^-  agent:gall
 ::Start of our agent door
 |_  =bowl:gall
@@ -113,35 +110,53 @@ Finally, how is default agent used in a standard agent? Like so:
 
 ++  on-init
   ^-  (quip card _this)
-  ::This is just the subject, and the subject is our agent core ::itself.
+  ::This is just the subject, and the subject is our agent core 
+  ::itself.
   `this
 :: We defined def above, and use on-X:def to call default-agents
-::arms. Each arm is just compiled, and the resultant hoon expressions
-::(really, low level nock) are just run in place.
+::arms. Each arm is just compiled, and the resultant hoon 
+::expressions are just run in place.
 ++  on-save   on-save:def
 ...
 --
 ```
 
-So after all that, here is what is going on: There are two basic mechanisms that allow all this to chain together. Really, they are just old lessons from HSL:
+**So what is really going on?** There are two basic mechanisms that allow all this to chain together. Really, they are just old lessons from HSL:
 
 (1)  Core Definitions back-to-back: After `--` is encountered, the hoon compiler looks ahead to see if there are any other runes or cores to compile. A common confusion is that there are no more "rune" slots, so the code should not compile. **But it does.**  
-- We know this to be **True** because in HSL we did countless `|%` examples, where the $ arm was called right after the `--`.
+- We know this to be **True** because in HSL we did countless `|%` examples, where the $ arm was called right after the `--`, using cen (%) runes. Really, any expression can appear right after `--`.
 
 (2) When |% or any core rune is hit, the compiler grabs a snapshot of the subject, to compose into the payload tail of the core.
 - This is **True**, it's in the notes for HSL.
 
 **These two little facts are why it all chains together!**
 
-Then Default Agent works as follows: 
+So *default-agent* works as follows: 
 
-1) Skeleton is imported. The compiled core is attached to the name skeleton.
-2) In *default-agent*, we define a wet-core. Ignoring the help branch, the skeleton score is expanded. The compiler then looks beyond the end of the core, and compiles our door. So the payload tail of our default-agent includes skeleton and the subject.
-3) In our agent, we import *default-agent*, which is a compiled core that is again bound to a name. We encounter a structure core `+$`. Once again, we look past the core and see another door. In the payload tail of this agent core, *default-agent, skeleton and the subject are stored*, as well as any *Deferred Expressions* that are referenced in the arms.
+1) In *default-agent*, we define a wet-core. Ignoring the help branch, the skeleton score is expanded. The compiler then looks beyond the end of the core, and compiles our door. So the payload tail of our default-agent includes skeleton and the subject.
+2) In our agent, we import *default-agent*, which is a compiled core that is again bound to a name. We encounter a structure core `+$`. Once again, we look past the core and see another door. In the payload tail of this agent core, *default-agent, skeleton and the subject are stored*, as well as any *Deferred Expressions* that are referenced in the arms.
 
-4) Finally, our compiled agent core is stored by Gall, bound to the agent name, and invoked and reupdated as the OS / other agents interact with it.
+3) Finally, our compiled agent core is stored by Gall, bound to the agent name, and invoked and reupdated as the OS / other agents interact with it.
 
-**So really, our default-agent wrapper is wrapped up inside the agents payload tail, not really "around" the core, structurally!**
+4) Practically, all the work is done by the Deferred Expression:
+
+```hoon
++*  this  .
+    def   ~(. (default-agent this %.n) bowl)
+
+:: The deferred expression is Irregular Form for censig:
+def  %~  .  %+  default-agent  this  %.n  bowl
+```
+
+  - `.` Is our wing to resolve, and thats just our subject. The subject here, is the agent itself, with default-agent, skeleton, etc already in the payload tail.
+  - `%+ default-agent this %.n` calls our bartar wet-gate, and produces our Gall Door.
+- `%~ . <door> bowl` completes our default-agent, which is reupdated everytime Gall "enters" this core on an event. This is bound to the name `def`
+- Finally, as seen in the arms above, we can call things like `on-save:def` to run our default-agent arm **in place** of code we would have to write. 
+  - : col notation for arms is syntactic sugar for the =< rune, specifically: `on-save:def` $\equiv$ `=< on-save def` $\equiv$ `=> def on-save`. Where def is just our door, and on-save references the arm in the door.
+
+
+
+**So really, our default-agent is inside the agents payload tail, not "wrapped around" the core at all.**
 
 ### Breaking Down the +dbug package:
 
@@ -155,21 +170,17 @@ In our explanation, we will boil down the library to just the necessary pieces o
 ```hoon
 
 ::No imports in sight.
-:: Just one core, not one core composed after another.
 |%
-:: Inline poke structure
+:: Inline poke and about structure
 +$  poke
   $%  ... ==
-:: In line about structure
-+$  about ... ==
-::Curiously, our entire gall agent is in an outer arm.
+
+::Curiously, everything is in an outer arm.
 ::Need to call (agent:dbug our-agent) to access.
 ++  agent
     :: An agent Gate
   |=  =agent:gall
   ^-  agent:gall
-  ::Zapdot turns off stack trace for our entire door p
-  !.
   ::The start of our agent door,
   |_  =bowl:gall
     ::  Tistar deferred expressions. this, the subject (the agent itself)
@@ -187,19 +198,7 @@ In our explanation, we will boil down the library to just the necessary pieces o
       =^  cards  agent  (on-poke:ag mark vase)
       [cards this]
 
- ++  on-peek
-    |=  =path
-    ^-  (unit (unit cage))
-    ::We look for the generators %dbug mark again, and call
-    :: the agents on-peek arm if it is not present.
-    ?.  ?=([@ %dbug *] path)
-      (on-peek:ag path)
-    ?+  path  [~ ~]
-      [%u %dbug ~]                 ``noun+!>(&)
-      [%x %dbug %state ~]          ``noun+!>(on-save:ag)
-      [%x %dbug %subscriptions ~]  ``noun+!>([wex sup]:bowl)
-    ==
-
+  ...
 
    ::Interestingly, other than poke and peek, every arm is defaulted.
     ::But not with default-agent. It uses the ag DE:
@@ -246,18 +245,17 @@ Code is a lot shorter. Lets examine it:
 ==
 ```
 
-But how does the %dbug mark and associated output cells get to the library for parsing? All generators have a return cask, so somehow this is passed there.
+But how does the %dbug mark and associated output cells get to the library for parsing? All generators have a return cask, so somehow this is passed there (?).
 
-Casks are only used to send data over the network, not locally. So here it is being sent from a generator to our agent library (somehow?)
 
 #### Sample Agent Usage:
 
-Finally, lets examine how +dbug is used for the common %echo app that is found in ASL:
+Finally, lets examine how +dbug is used for the common *echo* app that is found in ASL:
 
 ```
 :: Structure file imported
 /-  *echo
-::Default and dbug imported, so both are already compiled
+::Default and dbug imported.
 /+  default-agent, dbug
 ::Start our first core
 :: Contains state, some other shorthands
@@ -272,8 +270,7 @@ Finally, lets examine how +dbug is used for the common %echo app that is found i
 ::End of core
 --
 ::Compiler looks beyond the --, sees a gate call.
-::Pass agent:dbug arm our gall agent core below.
-:: =| expands to =+  *p  q, so we pin an empty state to the subject.
+::Pass agent:dbug arm our agent core below.
 %-  agent:dbug
 =|  state-0
 ::Define a deferred exppression, compose with our door itself.
@@ -288,17 +285,57 @@ Finally, lets examine how +dbug is used for the common %echo app that is found i
     ::for example, we can write on-init:default to plug a default arm
     default  ~(. (default-agent this %|) bowl)
 
-
+:: Usual agent arm code here, removed for brevity
 ...
 ::Using our internal core default expressions.
 ++  on-arvo   on-arvo:default
 ++  on-leave  on-leave:default
+::End of Door.
+--
+```
+So what is actually happening? Lets go through it, starting from the importing `%echo` application.
 
+1) We import the *dbug* library into *%echo*.  This gives a core, with an `++agent` arm, that has a nested gate `|=` which takes an agent, and inside that, a door `|_`.
 
+2) Near the top of the `%echo` app, we pass our application as an input into `dbug`, using the line `%-  agent:dbug ...`. The core after it is just the agent input we saw at the gate definition for `dbug`.
+
+3) At this point, our agent is **wrapped by** dbug, because our agent was just an input to the dbug library. Let's walk thorugh a `++on-poke` call, and an     `++on-agent` call: 
+
+Consider a standard poke call, handled by Gall and passed to our agent *%echo*. As echo is actually wrapped by dbug, the core that is invoked is just dbug. (Presumably...), the ++on-poke arm of the dbug door is invoked.  Once we hit this arm, we immediately have the following code:
+
+```hoon
+    ?.  ?=(%dbug mark)
+      ::If not the dbug mark...F case
+      =^  cards  agent  (on-poke:ag mark vase)
+      ::send whatever cards were there, no state update
+      [cards this]
 ```
 
+The above line is checking with a reversed IF statement (False case handled first), to see if the `%dbug @tas` is present from the Generator. If the generator has not invoked our dbug core, it means we are calling on-poke from Gall. The tis-ket (`=^`) call effectively rearranges legs and arms in the subject.  The real magic happens in the following lines:
 
+```hoon
+::Our deferred expression from earlier in dbug
+  +*  this  .
+      ag    ~(. agent bowl)
 
+:: Calling the DE in tisket:
+=^  cards  agent  (on-poke:ag mark vase)
+  [cards this]
+```
+
+`(on-poke:ag mark vase)` is calling the %echo agent's on-poke arm! This is how our call passes thorugh.  The D.E `ag` pegs the agent (which is a door) and composes it with the given bowl from Gall, and this allows direct access to our `%echo` agent core.  So this is how we can invoke the `%echo` app's arms.
+
+Lets look at another example (a simpler one): The on-agent arm.
+
+```hoon
+   ^-  (quip card:agent:gall agent:gall)
+    =^  cards  agent  (on-agent:ag wire sign)
+    [cards this]
+```
+
+The arm is simple, as dbug has no functionality for the on-agent arm. Dbug's implementation exclusively lives in `++on-poke` and `++on-peek`). We just get on with the pass-through and call `on-agent:ag` like before. 
+
+So in comparision to default-agent, **dbug really is a wrapper!**
 
 ## Practical Exercise: 
 

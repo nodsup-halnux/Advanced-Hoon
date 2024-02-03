@@ -29,6 +29,7 @@
   |_  =bowl:gall
   :: this is a tistar virtual arm expression. It will
   ::be inserted into the front of every arm below.
+  ::The second is the irregular SS of 
   +*  this  .
       ag    ~(. agent bowl)
   ::  Poke Arm - most fleshed out because we interact this way
