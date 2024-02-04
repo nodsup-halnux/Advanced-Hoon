@@ -5,32 +5,37 @@
 ::Import FE file that we will serve up in ++on-poke
 /=  indexdebug  /app/frontend/indexdebug
 |%
-+$  versioned-state
-  $%  state-0
-  ==
-+$  state-0
-    :: A very basic state to test Sail with.
-  $:  [%0 values=(list @ud) gameboard=board playmap=playerinfo =page]
-  ==
-+$  card  card:agent:gall
+    +$  versioned-state
+    $%  state-0
+    ==
+    +$  state-0
+        :: A very basic state to test Sail with.
+    $:  [%0 values=(list @ud) gameboard=board playmap=playerinfo =page]
+    ==
+    +$  card  card:agent:gall
 --
-%-  agent:saildebug
+
+::%-  agent:saildebug
+
 =|  state-0
 =*  state  -
+
 ^-  agent:gall
+
 |_  =bowl:gall
 +*  this     .
     default  ~(. (default-agent this %|) bowl)
-++  on-init
+  ++  on-init  
     ^-  (quip card _this)  ::do we need the alias (io for agentio??) [!!!]
     :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'indexdebug' %ourapp)]~
+
 ++  on-save   !>(state)
-++  on-load
+++  on-load  
   |=  old=vase
   ^-  (quip card _this)
   `this(state !<(state-0 old))
 ++  on-poke
-  |=  [=mark =vase]
+    |=  [=mark =vase]
     |^  ::reminder, where does action var come from?? Our /sur file, of course!
         ^-  (quip card _this)
         ?+  mark  `this
@@ -59,19 +64,8 @@
                     :_  %=  this  playmap  *playerinfo  gameboard  *board  ==  ~
                 == ::End ?-
     --  ::End |^
-++  on-peek
-  |=  =path
-  ^-  (unit (unit cage))
-  ?+  path  (on-peek:default path)
-    [%x %values ~]  ``noun+!>(values)
-  ==
-++  on-watch
-  |=  =path
-  ^-  (quip card _this)
-  `this
-  ::?>  ?=([%values ~] path)
-  :::_  this
-  ::[%give %fact ~ %gameuis-update !>(`update`[%init values])]~
+++  on-peek  on-peek:default
+++  on-watch  on-watch:default
 ++  on-arvo   on-arvo:default
 ++  on-leave  on-leave:default
 ++  on-agent  on-agent:default
