@@ -1,0 +1,10 @@
+:~
+  title+'WrapperExample'
+  info+'WrapperExample'
+  color+0x4b.c647
+  version+[0 1 0]
+  website+'https://urbit.org'
+  license+'MIT'
+  base+'ourapp'
+  site+/indexdebug
+==
