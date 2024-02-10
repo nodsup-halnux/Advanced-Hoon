@@ -129,11 +129,11 @@ Finally, how is default agent used in a standard agent? Like so:
 (2) When |% or any core rune is hit, the compiler grabs a snapshot of the subject, to compose into the payload tail of the core.
 - This is **True**, it's in the notes for HSL.
 
-**These two little facts are why it all chains together!**
+**These two little facts are why it all chains together.**
 
 So *default-agent* works as follows: 
 
-1) In *default-agent*, we define a wet-core. Ignoring the help branch, the skeleton score is expanded. The compiler then looks beyond the end of the core, and compiles our door. So the payload tail of our default-agent includes skeleton and the subject.
+1) In *default-agent*, we define a wet-core. Ignoring the help branch, the skeleton core is expanded. The compiler then looks beyond the end of the core, and compiles our door. So the payload tail of our default-agent includes skeleton and the subject.
 2) In our agent, we import *default-agent*, which is a compiled core that is again bound to a name. We encounter a structure core `+$`. Once again, we look past the core and see another door. In the payload tail of this agent core, *default-agent, skeleton and the subject are stored*, as well as any *Deferred Expressions* that are referenced in the arms.
 
 3) Finally, our compiled agent core is stored by Gall, bound to the agent name, and invoked and reupdated as the OS / other agents interact with it.
@@ -153,6 +153,7 @@ def  %~  .  %+  default-agent  this  %.n  bowl
 - `%~ . <door> bowl` completes our default-agent, which is reupdated everytime Gall "enters" this core on an event. This is bound to the name `def`
 - Finally, as seen in the arms above, we can call things like `on-save:def` to run our default-agent arm **in place** of code we would have to write. 
   - : col notation for arms is syntactic sugar for the =< rune, specifically: `on-save:def` $\equiv$ `=< on-save def` $\equiv$ `=> def on-save`. Where def is just our door, and on-save references the arm in the door.
+  - So when `on-save:def` is called, we are calling the arm of our completed core, and running its code in place (as a substitute for code we would have to write, for convinience).
 
 
 
@@ -252,7 +253,7 @@ But how does the %dbug mark and associated output cells get to the library for p
 
 Finally, lets examine how +dbug is used for the common *echo* app that is found in ASL:
 
-```
+```hoon
 :: Structure file imported
 /-  *echo
 ::Default and dbug imported.
@@ -299,7 +300,7 @@ So what is actually happening? Lets go through it, starting from the importing `
 
 2) Near the top of the `%echo` app, we pass our application as an input into `dbug`, using the line `%-  agent:dbug ...`. The core after it is just the agent input we saw at the gate definition for `dbug`.
 
-3) At this point, our agent is **wrapped by** dbug, because our agent was just an input to the dbug library. Let's walk thorugh a `++on-poke` call, and an     `++on-agent` call: 
+3) At this point, our agent is **wrapped by** dbug, because our agent was just an input to the dbug library. Let's walk thorugh a `++on-poke` call, and `++on-agent` call.
 
 Consider a standard poke call, handled by Gall and passed to our agent *%echo*. As echo is actually wrapped by dbug, the core that is invoked is just dbug. (Presumably...), the ++on-poke arm of the dbug door is invoked.  Once we hit this arm, we immediately have the following code:
 
@@ -323,7 +324,7 @@ The above line is checking with a reversed IF statement (False case handled firs
   [cards this]
 ```
 
-`(on-poke:ag mark vase)` is calling the %echo agent's on-poke arm! This is how our call passes thorugh.  The D.E `ag` pegs the agent (which is a door) and composes it with the given bowl from Gall, and this allows direct access to our `%echo` agent core.  So this is how we can invoke the `%echo` app's arms.
+`(on-poke:ag mark vase)` is calling the %echo agent's on-poke arm! Remember that `agent` was our %echo input, pinned to the sample of the dbug door! This is how our call passes thorugh.  The D.E `ag` pegs the agent (which is a door) and composes it with the given bowl from Gall, and this allows direct access to our `%echo` agent core.  So this is how we can invoke the `%echo` app's arms.
 
 Lets look at another example (a simpler one): The on-agent arm.
 
