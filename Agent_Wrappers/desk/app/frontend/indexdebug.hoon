@@ -3,7 +3,7 @@
 /-  *ourapp
 :: our front-end takes in the bowl from our agent and also our agent's state
 ::
-|=  [bol=bowl:gall =page] ::gameboard=board playmap=playerinfo]
+|=  [bol=bowl:gall] :: =page gameboard=board playmap=playerinfo]
 :: 5. we return an $octs, which is the encoded body of the HTTP response and its byte-length
 ::
 |^  ^-  octs
@@ -19,13 +19,7 @@
 :: 1. we return a $manx, which is urbit's datatype to represent an XML structure
 ::
 ^-  manx
-::Our actual rendering and XML generation starts, below...
-::~&  'gameboard struct:'  ~&  gameboard
-::~&  'player struct:'  ~&  playmap
-=/  nums=(list @ud)  (gulf 1 9)
-:: here begins the construction of our HTML structure. We use Sail, a domain-specific language built
-:: into the hoon compiler for this purpose
-::
+
 ;html
   ;head
     ;title: gameui
@@ -37,6 +31,7 @@
   ;body
     ;h1: Our Sample Tic-Tac-Toe Board:
     ;h2: This page uses the ~nodsup-halnux default color scheme.
+    ;div.whitesquare: {<wex.bol>}
   == ::body
 == ::html
 ++  style

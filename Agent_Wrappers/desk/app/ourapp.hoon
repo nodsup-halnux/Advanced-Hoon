@@ -10,25 +10,23 @@
     ==
     +$  state-0
         :: A very basic state to test Sail with.
-    $:  [%0 values=(list @ud) gameboard=board playmap=playerinfo =page]
+    $:  [%0 values=(list @ud) gameboard=board playmap=playerinfo]
     ==
     +$  card  card:agent:gall
 --
 
-::%-  agent:saildebug
+%-  agent:saildebug
 
 =|  state-0
 =*  state  -
-
 ^-  agent:gall
-
 |_  =bowl:gall
 +*  this     .
     default  ~(. (default-agent this %|) bowl)
   ++  on-init  
+    ~&  "ourapp on-init called"
     ^-  (quip card _this)  ::do we need the alias (io for agentio??) [!!!]
     :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'indexdebug' %ourapp)]~
-
 ++  on-save   !>(state)
 ++  on-load  
   |=  old=vase
@@ -51,6 +49,7 @@
                     %pop  `this
                     ::Here, we set a basic state using a poke via the terminal. This will test our Sail render gates
                     %teststate
+                    ~&  "Our App has received a teststate poke"  
                     =/  p1  ^-  player  [~nodsup-sorlex 1 %spade %red]
                     =/  p2  ^-  player  [~miglex-todsup 2 %diamond %green]
                     =/  row1  ^-  boardrow  ~[[%white %empty] [%black %spade] [%white %diamond]]
@@ -61,6 +60,7 @@
                     :_  %=  this  playmap  theplayermap  gameboard  theboard  ==  ~
                     ::The state can also be reset with a poke, should be choose to. Tests the Sail Null Case.
                     %clearstate
+                    ~&  "Our App has received a clearstate poke"
                     :_  %=  this  playmap  *playerinfo  gameboard  *board  ==  ~
                 == ::End ?-
     --  ::End |^

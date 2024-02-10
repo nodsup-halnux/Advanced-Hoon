@@ -1,32 +1,36 @@
 /-  *ourapp
-/+  default-agent
+/+  default-agent, agentio
 /=  indexdebug  /app/frontend/indexdebug
 
 |%
 ++  agent  
     |=  =agent:gall
     ^-  agent:gall
-    ::!.
+    !:
     |_  =bowl:gall
         :: agent sample above is fed a bowl, and ref'ed by ag.
       +*  this  .
           ag    ~(. agent bowl)
           default  ~(. (default-agent this %|) bowl)
-      ::  Poke Arm - most fleshed out because we interact this way
       ++  on-init
+          ~&  "saildebug on-init called"
+          :: We don't use (quip card this), as we don't have a structure def core
+          :: up top - system defs are used instead.
           ^-  (quip card:agent:gall agent:gall)
-          =^  cards  agent  on-init:ag  [cards this]
+          :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'indexdebug' %ourapp)]~
+          ::=^  cards  agent  on-init:ag  [cards this]
       ++  on-save   on-save:ag
       ++  on-load
         |=  old-state=vase
           ^-  (quip card:agent:gall agent:gall)
           =^  cards  agent  (on-load:ag old-state)  [cards this]
+      ::  Poke Arm - most fleshed out because we interact this way
       ++  on-poke
         |=  [=mark =vase]
           ^-  (quip card:agent:gall agent:gall)
-          |^  ::reminder, where does action var come from?? Our /sur file, of course!
+          |^ 
             ::Our $-arm
-            ^-  (quip card:agent:gall agent:gall)::(quip card _this)
+            ^-  (quip card:agent:gall agent:gall)
             ?+  mark              
                 :: Null Case, just pass through!
                 =^  cards  agent  (on-poke:ag mark vase)  [cards this]
@@ -37,21 +41,14 @@
                     (handle-http !<([@ta inbound-request:eyre] vase))
             ==  ::End ?+  
             ::End $-arm
-            ++  handle-http
+            ++  handle-http 
               |=  [rid=@ta req=inbound-request:eyre]
-                ^-  (quip card:agent:gall agent:gall)::(quip card _this)
-                :: if the request doesn't contain a valid session cookie
-                :: obtained by logging in to landscape with the web logic
-                :: code, we just redirect them to the login page
-                ::
+                ^-  (quip card:agent:gall agent:gall)
                 ?.  authenticated.req
-                    :_  ::this
+                    :_  this
                     (give-http rid [307 ['Location' '/~/login?redirect='] ~] ~)
-                :: if it's authenticated, we test whether it's a GET or
-                :: POST request.
-                ::
+
                     ?+  method.request.req
-                    :: if it's neither, we give a method not allowed error.
                         :_  this
                         %^    give-http
                             rid
@@ -61,20 +58,13 @@
                                 ['Allow' 'GET, POST']
                             ==
                         (some (as-octs:mimes:html '<h1>405 Method Not Allowed</h1>'))
-                    :: if it's a get request, we call our index.hoon file
-                    :: with the current app state to generate the HTML and
-                    :: return it. (we'll write that file in the next section)
-                    ::
+                    
                         %'GET'
-                        :_  this(page *^page)  ::Slam sample state into the gate. 
-                        ::Here we have a serious problem. The agent core is our
-                        ::Input, but we need the state for our debug display.
-                        ::This would be a complicated scry request to achieve??
-                        (make-200 rid (indexdebug bowl page))
+                        :_  this  (make-200 rid (indexdebug bowl))
                     == ::End ?+ and End arm
             ++  make-200
               |=  [rid=@ta dat=octs]
-              ^-  (list card)
+              ^-  (list card:agent:gall)
                   %^    give-http
                       rid
                   :-  200
@@ -84,17 +74,18 @@
                   [~ dat]
             ++  give-http
               |=  [rid=@ta hed=response-header:http dat=(unit octs)]
-              ^-  (list card)
+              ^-  (list card:agent:gall)
                   :~  [%give %fact ~[/http-response/[rid]] %http-response-header !>(hed)]
                       [%give %fact ~[/http-response/[rid]] %http-response-data !>(dat)]
                       [%give %kick ~[/http-response/[rid]] ~]
                   ==
           -- ::End of barket |^
-      ::End of our |= $ arm.
+      ::End of our |= $ arm. 
       :: On peek returns a cage, not a `this!!
       ++  on-peek   |=(path ~)
       ++  on-watch
         |=  =path
+        ~&  "saildebug on-watch called"
           ^-  (quip card:agent:gall agent:gall)
           =^  cards  agent  (on-watch:ag path)  [cards this]
       ++  on-leave
