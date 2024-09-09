@@ -2,26 +2,25 @@
 
 The purpose of this repo is to understandhow urbit identities, authentication and networking works across the decentralized network of ships.  By far, Ames is the most complex of the three vanes.
 
-##  Pre-Requisite Internet Protocol Knowledge:
+##  Pre-Reqs:: Internet Protocol Knowledge:
 
 ### UDP - Unified Datagram Protocol:
-- a simple way to send packets of data from one point to another, where speed trumps the occasional loss of a packet.
-- No handshake setup (like tcp/ip)
-- no error correction, but has a checksum for destination error checking.
+- A simple way to send packets of data from one point to another, where speed trumps the occasional loss of a packet.
+- No handshake.
+- No error correction, but has a checksum for destination error checking.
 - user programmer can implement reliability mechanisms on top/external to UDP
     - such as ECCs, or packet numbering (for large bit blob reassembly).
-    - you don't **need** tcp/ip for this, it just has these features.
 - no guarentee that all packets will arrive, or in the correct order.
-    - but you can just code this.
+    - but you can just code/manage this yourself..
 - very fast and simple to implement.
-- defalut port: 17
+- default port: 17
 - range of packet data field size: 8-65527 bytes of data
 - size of header: 8 bytes.
 - (!!) UDP header *does not* include IP source/destination! This wraps around the UDP packet (header + data)
     - IP is a separate protocol handled by other portions of a network stack.
     - with IP header (20 bytes), max datagram payload is only 65507 bytes.
 - The UDP header: Each field is two bytes.
-- The ipv4 packet with a UDP datagram inside, is shown below (for reference):
+- The ipv4 packet with a UDP datagram inside, is shown below (for reference)[X]:
 
 | **Field**                         | **Size (bits)** | **Description**                                             |
 |-----------------------------------|-----------------|-------------------------------------------------------------|
@@ -53,42 +52,41 @@ The purpose of this repo is to understandhow urbit identities, authentication an
 - The Ames vane, with its message-pump and splitting of encrypted messages into various 1kb packets, decides which packets to send/resend over the network. It must keep track of every packet it sends, and recieve and ack to ensure data transmission.
 - Ames uses (New Reno), a common TCP algorithm for doing this.
 - **Mini-glossary:**
-    - RTT: Round Trip Time: Time to send + time to get an ACK.  This is also used as a timer for each packet (estimated). When it is exceeded, we worry if the packet got to its destination.
-    - MSS: an option field in TCP header, stating max amount of data per packet.
-    - AIMD: Additive Increase/Multiplicative Decrease
-    - Link: transmission channel between two parties.
-    - RTO:  Retransmission Timeout
-    - CWND: Congestion Window Size: An integer (units of packets sent)
-    - SSTHRESH: Slow start theshold.
+    - **RTT**: Round Trip Time: Time to send + time to get an ACK.  This is also used as a timer for each packet (estimated). When it is exceeded, we worry if the packet got to its destination.
+    - **MSS**: an option field in TCP header, stating max amount of data per packet.
+    - **AIMD**: Additive Increase/Multiplicative Decrease
+    - **Link**: transmission channel between two parties.
+    - **RTO**:  Retransmission Timeout
+    - **CWND**: Congestion Window Size: An integer (units of packets sent)
+    - **SSTHRESH**: Slow start theshold.
 
--  **How Reno + New Reno Operates:**
+####  How Reno + New Reno Operates:
 
-1) Slow Start Phase:  Start with a CWND of size 1.  Increase by one packet for each ACK recieved.  Keep increasing until SSTHRESH is hit.  If we keep increaseing upto threshold, we assume maximum capacity on the channel: the Reno algorithm is turne don.
+1) Slow Start Phase:  Start with a CWND of size 1.  Increase by one packet for each ACK recieved.  Keep increasing until SSTHRESH is hit.  If we keep increaseing upto threshold, we assume maximum capacity on the channel: the Reno algorithm is turne down.
 
 2) If there is no ACK, we assume a loss has occured.  This is one event where we switch to the new reno congestoin algorithm.  Note that there is a timer to resend a packet.  For new Reno, we use a *Fast Retransmit*, which shortens the old Reno wait time.  This fast retransmission is an upgrade for the New Reno.
 
 3)  If we recieve three dup ACKS for a packet, we assume it has been lost. and attempt to fast transmit.
 
-
 - Other Notes:
     - Slow-start performs poorly in less-reliable networks (such as wireless), or in older browsers where many short lived connections are created by default.
     - For ames, our sequence numbers only reset when a ship breaches.
+    - No point sending a bunch of packets fast (how do we know the channel is reliable?)
 
 
 ## Ames:
-
 ### General Notes:
-- An ames address is a pair of (identity, @p string, public key).
-- ultimately is responsible for sending and recieving messages of any length.
-- packet transmission is done over UDP
-    - so our identity triplet defaults to an IP address, which is used in the UDP packet.
+- An Ames address is a pair of (identity, @p string, public key).
+- Ultimately is responsible for sending and recieving messages of any length.
+- Packet transmission is done over UDP
+    - So our identity triplet defaults to an IP address, which is used in the UDP packet.
     - Note:  IP addr to @p mapping is ultimately handled outside Ames, in Arvo.  You can see galaxy IP addresses in your boot sequence for your ship.
 - Arvo perspective:  extend %moves across multiple Arvo instances. Vanes inside Arvo talk to other external vanes using %pleas
 - Ames Guarentees:
     1) Messages within a flow processed in order.
     2) messages are delivered only once.  The reciever will always give an %ack to let us know.
 - Practically, this all works because we can extend UDP and do our own ECC and packet order management.  It doesn't matter that UDP is a simplistic protocol, just send another datagram!
-- Ames gets public keys from Jael, which gets them from the Azimuth Userspace agent?
+- Ames gets public keys from Jael, which gets them from the %azimuth
 
 ### How Ames Works:
 - Ames is a vane nested inside Arvo, which the urbit OS. Arvo is run in the urbit binary, which itself runs inside Vere.
@@ -96,7 +94,7 @@ The purpose of this repo is to understandhow urbit identities, authentication an
 - When Ames sends a packet to another Ames instance on an external machine, what is is really doing is:
     -  Forming a vane specific packet, and dispatching it to Arvo.
     -  Arvo packages this packet as a kind of move. These moves are stored in a duct.
-    -  Arvo makes a system call, via vere, to use your computers TCP/IP/Network stack, and your ames packet is passed on the 
+    -  Arvo makes a system call, via Vere, to use your computers TCP/IP/Network stack, and your Ames packet is passed on the 
     hardware layer.
     - All of the above is reversed, so your recipient Ames instance can read the packet.
 
@@ -128,7 +126,7 @@ Var:  receiver address
 Var:  ciphertext payload itself.
 
 - Note that the life number refers to the current number of key owners for an @p urbit point.
-- Reciever addrss is often longer than the sender address.
+- Reciever address is often longer than the sender address.
 -  ++jamming is really the process of creating a ciphertext from a noun.
     - Ames will cut up the ciphertext into 1kB or smaller packets, to be dispatched.
 - The receiving Ames will cue up the ciphertexts (reassembled), and then they are decoded and turned into the original noun.
@@ -138,25 +136,25 @@ Var:  ciphertext payload itself.
 
 - Ames will periodically send a packet over and over, until it gets a response.
 - Ames has acks and nacks.
-    -  An ack is sent to agknowledge the receipt of a packet.
+    -  An ack is sent to acknowledge the receipt of a packet.
     - A nack is sent when a packet was recieved, but some error occured.
-- If a nack has occured, ames can block waiting for the naxplanation.
--  All packets are encrypted with AES-256.
+- If a nack has occured, ames can block waiting for the *naxplanation*.
 -  IP stack and addressing is handled by the users OS and the run-time (vere). IP addresses are opaque to Ames, and generally left alone.
 
 
 ### Messages and Flows:
 - Naturally, Ames must manage a message.  Messages are usually > 1kb, so we must maintain a record of all of our split messages, the acks we recieve, lost packets, etc.
 
-- We have a message-pump, and structures to store .unsent-messages, acked messages, and a congestion control algorithm to attune parameters, and monitor the whole affair of transmitting all our data.
+- We have a `message-pump`, and structures to store .unsent-messages, acked messages, and a congestion control algorithm to attune parameters, and monitor the whole affair of transmitting all our data.
 
-- There are two levels of pump: |message-pump and |packet-pump. Message pump sends tasks to packet-pump (likely master-slave configuration).
+- There are two levels of pump: `|message-pump` and `|packet-pump`. Message pump sends tasks to packet-pump (likely master-slave configuration).
 
 - various timers trigger re-sends of packets, or adjust our congestion parameters as our events go on.
 
-- a bone is a duct handle, our duct being a queue of messages we wish to send.  The `ossuary` maps our bone integer, to a particular duct storing our message.
+- a `bone` is a duct handle, our duct being a queue of messages we wish to send.  The `ossuary` maps our bone integer, to a particular duct storing our message.
 
 - Our Pump Metrics, which are a custom New Reno implementation, are as follows:
+```
 +$  pump-metrics-16
   $+  pump-metrics-16
   $:  rto=_~s1
@@ -167,18 +165,13 @@ Var:  ciphertext payload itself.
       num-live=@ud
       counter=@ud
   ==
-`
+```
 
 ### What is Fine? 
 
 - it involves remote scrying - or the read only exposure of a vane/ships namespace.
 - there is no separate fine vane.  It is implemented between `ames.hoon` and `/vere/io/ames.c`
-- remote scries handled by the runtime. Local ames scries handled by ames itself.
-
-
-## Ames: Cryptography:
-
--  Packets are transmitted between ships, using AES.  The urbit identity infrastructure includes a public key derived for each @p.  This is used to transmit
+- remote scries handled by the runtime. Local Ames scries handled by Ames itself.
 
 
 ### Practical Work and Exercises.
@@ -230,7 +223,7 @@ Inspect the message pump.  Curiously, it is a vase.
   $(counter +(counter))
 ```
 
-2)  Examine ++hear:
+2)  Examine `++hear`:
 
 -  This is a more complicated gate.
 - recieves message fragment, may or may not complete message. Many cases.
@@ -242,20 +235,20 @@ Inspect the message pump.  Curiously, it is a vase.
     assemble and send to vane.
 - note the var `sink`  this is where the messages are sunk and assembled, to complete a full message.
 
-3)  Examine ++assemble-fragments:
+3)  Examine `++assemble-fragments`:
 - its quite simple.
 - the returned type is a noun (*)
 - we have a fragments map, and we feed a list (called sorted) into ++cue
 
-### Ames: Structures and Related Files:
+### Ames: Structures and Connected Files:
 
 ####  lull.hoon:
 
-- lull.hoon is located in the %base desk, in /sys/lull.hoon.  It contains structures for Arvo, which manages all of the working vanes, and implements urbit's "operating function".
+- lull.hoon is located in the %base desk, in /sys/lull.hoon.  It contains structures for Arvo, which manages all of the working vanes, and implements Urbit's "operating function".
 - In lull.hoon,  ames interface structures are listed. They are as follows:
 -  we have a top level definition for `++  ames`  which is a **lead core** (bivariant).  This means the reads and the writes for ames, for any other core handling an instance of this, are opaque.
-- Note that this $ames structure is an interface definition.
-- Ames functional work can be split into $tasks (jobs) and $gifts (events and side-effects).
+- Note that this $ames structure is an **interface definition**.  Likely used for mold validation for the vane.
+- Ames functional work can be split into tasks (jobs) and gifts (events and side-effects).
 - **Some $tasks of note:**
     - [%hear =lane =blob]: a packet from unix
     - [%dear =ship =lane]: a lane from unix (a lane is a ?(@pC @uxaddress)) - an opaque kind of address.
@@ -276,7 +269,7 @@ Inspect the message pump.  Curiously, it is a vase.
         - life and rift
         - public-key
         - sponsor=@p
-    -route: (unit [direct=? =lane])
+    - route: (unit [direct=? =lane])
     - ossuary: bone (int) to duct map.
     - snd=(map bone message-pump-state)
     - rcv=(map bone message-sink-state)
@@ -290,8 +283,7 @@ Inspect the message pump.  Curiously, it is a vase.
 - (!!) The symmetric key for each peer is not encrypted! You can use a scry to look at a particular one.  Any user that hacks into your console can find this key, and eavesdrop. 
 
 
-#### ames.hoon:
-
+#### Ames.hoon:
 - Location:  ~/ship/base/sys/ames.hoon
 
 - doesn't need to import lull.hoon and zuse.hoon, as this is core functionality in the %base desk.
@@ -806,6 +798,9 @@ We pass a %step task to jael, by using the `|pass` generator. `|pass [%j %step ~
 Q:  What does a "point" look like? Just a hex number?
 
 Q: Why is our code only 64 bits? Isn't that low security?
+ - - (!!) The symmetric key for each peer is not encrypted! You can use a scry to look at a particular one.  Any user that hacks into your console can find this key, and eavesdrop. 
+
+
 
 #### Azimuth Data Flow:
 
