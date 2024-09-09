@@ -1,0 +1,57 @@
+GroundWire 01
+Aug 22, 2024 • ~tondes-sitrym
+
+The course of events that have taken place in the Urbit ecosystem represents a profound failure of the project’s governance: both its theory, embodied by the Azimuth identity system, and its practice, executed by the Urbit Foundation, the galactic Senate, and the founder Curtis Yarvin. We, the community and builders of Urbit, can no longer give their leadership the benefit of the doubt, nor continue to rationalize the crippling mistakes made in the design of Azimuth from its inception. Under such circumstances the only sound course, morally and technically, requires taking decisive steps to ground control of the network in an autonomous consensus of its actual custodians: the core developers and Urbit developer community.
+
+Significantly, a lack of durable written discussion around technical decisionmaking in a canonical public venue goes hand-in-hand with a fragmented and informal engineering community that doesn’t effectively coordinate to advance its own interests in existential debates. The Bitcoiners have their listserv, the Hebrews have their Talmud, the NPCs their New York Times - and Urbit has..? We intend, first of all, to begin remedying this here. It is easier and less consequential to threaten forks in private chats than to set down a public position and say enough is enough. This project is the sovereign responsibility of those building it, its purpose is not to serve as a token launch vehicle, and a sound, lasting resolution to the present crisis can arise only from our collective decisionmaking as its builders. Whether the topic is architecture, core dev management, or what to do about Azimuth, the buck starts and stops with us.
+
+Q: What is wrong with Azimuth?  Dependent on ETH (legacy issues) L1/L2 division of functionality, not fungible or substitutable (poor software design), and urbit has evolved to reabsorb the functionality we piggybacked off of React+ETH.
+
+Azimuth was an experiment attempting to satisfy an enormous range of objectives under the hypothesis that they are unified by the single solution of hierarchy. The goals of spam resistance, peer discovery, and durable self-sovereign identity, essential properties of sound Martian networking, were mated with network financialization, participant gatekeeping, and legitimation of technical governance. This grand conjunction was justified by the claim that one’s identity is like real estate, a title rather than a name, and that a good identity system makes it axiomatic that some identities are a priori better than others. There was no incentive or mechanism to actually be better, other than access to fiat capital, or social access to an extremely arbitrary total premine. Technical soundness was made dependent on pure Cantillon effect, primitive accumulation, or to put it more bluntly: centralized shitcoining.
+
+N:  Diffisuion of purpose is evident in Azimuth, it is all over the place. "The Cantillon Effect describes the uneven effect inflation has on goods and assets in an economy". When money pours into the economy, those closer to the source benefit sooner and faster, prices inflate, the bad money drives out good (rent seeking behaviour, monopolies and power games), and we focus more on luxuries, exporting essential production to poorer areas to increase profits.
+    => The galaxy owners and initial founders are at fault. The Little planet and star guys do very little, and are worth very little.
+
+
+In practice, this created a mud-ball of confused and half-achieved purposes. Basic incentives of the system are divergently aligned: to onboard users and bring Urbit to the world, address space needs to be cheap and available, but to fund the ecosystem, it needs to be expensive and scarce. The need for a laundry list of PKI features forced dependency on the everchanging and often prohibitively expensive Ethereum environment. Core developer leadership, at Tlon and then the Foundation, has been technically excellent and conscientious, but constantly riven in different directions between the financial interests of address space and its holders, and their actual job planning and enacting the engineering goals of the project.
+=> Land owners fucked over urbit.
+
+
+The outcome over the years since is known and lamented by everyone: galaxies have been dumped from random acquaintance to disinterested VC until the market for them is gone, stars perform no routing and do not pump, planets provide trivial spam resistance at best, and the governance provided by the Senate has culminated in coups d’etat, angry mobs, empty balance sheets, midwit outsider postmortems, and back-room political dogfights whose lack of accountability and accessibility is simply unacceptable for a technical project of Urbit’s scope.
+
+
+
+This would be bad enough on its own - but the entire mess has been baked into the kernel. The conclusion for us is clear: the coupling of core network primitives to a failed shitcoin experiment is the true existential risk to Urbit. Unfortunately, this is a point of view that those currently in authority over Urbit’s institutions are largely precluded from contemplating by virtue of personal financial interests and fiduciary requirements. We believe there is thus an urgent need to begin developing robust clean-slate alternatives, fully interoperable with the existing system but aimed at decoupling Urbit from Azimuth, to be introduced on the live network in the near future for initial purposes of emergency continuity, experimentation and battletesting, and community signalling.
+
+Our plan for initiating this decoupling is straightforward: register comet identities on Bitcoin. A simple, non-hierarchical comet-networking maximalist approach will allow us to release an initial Gall networking agent as quickly as possible. Attestation and rotation of networking keys and public IP addresses or sponsor identities is straightforward to implement on Bitcoin L1, with multiple acceptable design paths ranging in complexity from OP_RETURN data to the ordinal-inscription and Taproot Asset protocols, that can be rapidly iterated on while the community onboards to the new peer network.
+
+We call this project GroundWire. In the coming weeks, a desk will be made available to install that implements Bitcoin-secured persistent comet networking, without impact on existing Azimuth-based functionality. DOS resistance comparable or superior to Azimuth planets is achieved simply by paying Bitcoin L1 fees, but we plan to make continuous opt-in improvements to the v0 BTC-ID, such as attesting your ownership of your Azimuth name and enhancing DOS resistance by timelocking or burning coins.
+
+From there, however, what should become of Azimuth, and more generally what is the path forward for a multi-source networking regime? We suggest that Azimuth names should ultimately become simply one way to address another Urbit node, alongside other addressing schemes like Nostr, Namecoin, ENS, and Farcaster. In the kernel, a single source of truth must be maintained, and Bitcoin is by far the most reliable and secure consensus network in existence, and the only one that could plausibly be Kelvin-versioned. It is also desirable that whatever Terran tokenization schemes the community engages in have no role in Arvo or Ames. But in userspace, it’s your ship and it should be your choice: if you want to trust ships that handshake with an ENS name or Nostr account, godspeed and smooth sailing to you.
+
+Beyond our concerns with Azimuth, we are unchanged in our belief that the principal mission of Urbit technical governance continues to be urgent completion of the projects collectively called Neo-Urbit: the Ares runtime, Shrubbery, fast Ames, and urWASM. This suite of upgrades, already within months of completion - notwithstanding its disruption by current events - delivers an Urbit freed from its crippling constraints on speed, space, and developer flexibility, and on the promise of user applications that can be freely and safely composed and it just works. That was the future-imminent of Urbit two weeks ago, and so is it today.
+
+But how should this governance be coordinated and formally represented? The obvious option is that it be handled by a public multisig of the Core guild, as it probably long since should have been. This would be used for public messages, to authenticate kernel updates, and soon for PR merges and repo maintenance as Shrubbery-native Github alternatives come online. We welcome ideas in this area from developers, and respectful feedback from the Urbit Foundation and Senate.
+
+As has been made clear again and again, Urbit is first of all a community. But this community grows, in all its strange and beautiful directions, out of an engineering culture and around a technological mission. Urbit engineering culture is fundamentally distinct and alien to any software engineering culture that has come before it, and our mission aims at the fate of humanity’s relationship with technology. This culture and mission are the root of what makes Urbit, Urbit. It has often been at the mercy of questionable leadership and speculative volatility, but we persist because we believe utterly in what we do.
+
+Aside from Bitcoin’s technical soundness as a substrate, it is perhaps the only other technical and political culture that shares this total commitment, long-termism, and acute awareness of the civilizational importance of its mission. Sound computing, sound governance, sound money. The disconnection between these cultures and technologies has gone on far too long, largely because of Azimuth ID and the mindset it has projected and cultivated. Outside of that mindset, there are endless opportunities for, on the one hand, using Urbit to offer competitive improvements for Bitcoin ecosystem technologies like Lightning, Nostr, ecash, and transaction relay; and on the other, for developing new Urbit capabilities that leverage the affordances of the Bitcoin protocol, such as global broadcast, Taproot-based network indexing and scry oracles, and DLC-based prediction markets. These are avenues that we strongly intend to pursue, opened up by serious engagement with the problem of truly hardened, minimalist, and credibly decentralized base networking.
+
+Urbit is and has always been a war. It is our war on the ball of mud, whose arbitrariness - its illegibility, insecurity, centralization, and instability - threatens the very basis of our civilisation, and we are armed with the certain knowledge that we can and will do better. As long as this culture is not dead, the war is not lost. But this war is too important to be left in the hands of politicians and financiers, no matter how well-intentioned.
+
+And so we fight on. Vox populi, vox Dei.
+
+
+Signed:
+
+Liam Fitzgerald (~hastuc-dibtux)
+Theodore Blackman (~rovnys-ricfer)
+Jacob Hamilton (~tondes-sitrym)
+Seth Feibus (~doplyr-harbur)
+
+
+Notes:
+- Bitcoin maxis dovetail into hardcore urbit beliefs quite readily.
+- Why is ETH less reliable than Bitcoin?  Do we not face similar problems? Fees do go up
+when the network is overloaded, and similar offchain schemes (akin to L2) exist to mitigate this.
+- why can't a bad actor just load $1kUSD into an HD wallet, and automate comet generation and token staking to attempt an attack on urbit.

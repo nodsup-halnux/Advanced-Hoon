@@ -1,4 +1,4 @@
-:: This app uses the %squad page serving/index.hoon code, and %charlie as a Gall App template.
++:: This app uses the %squad page serving/index.hoon code, and %charlie as a Gall App template.
 :: Our structure file. Standard action/update pattern is also used (in /mar)
 /-  *ourapp
 /+  default-agent, agentio, saildebug

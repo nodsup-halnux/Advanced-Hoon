@@ -1,3 +1,7 @@
 dev-latest.pill
 urbit
 med
+zod 
+.dev-latest.pill
+**/*.mp3
+**/*.pyc

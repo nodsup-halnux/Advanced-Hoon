@@ -1,0 +1,86 @@
+Azimuth Labs
+Situation
+• The Urbit star market is a “market for lemons”
+• Liquidity preferences of holders are invisible
+• Rational long-term speculation is difficult
+• Few positive near-term marketing drivers
+
+Technical overview
+• Add a new timelocked scarcity layer with a fungible token
+• $URBIT is a visa token—permission to launch a planet
+• A virgin star is exchanged for 65,535 visas
+• Visas unlock in tranches: 5% now, 10% 1yr, 10% 2yr, 25% 5yr, 50% 10yr
+
+Financial overview
+• Market cannot clear till supply liquidity is legible
+• Classic lockups are bad—they hide/postpone illiquidity
+• A tradable lockup token is like a zero-coupon bond
+• A bond market separates duration from liquidity
+• Everyone is 100% liquid. To trade out, you need to buy duration
+• This yield curve is actually a prediction market on Urbit
+• Prediction: it will reveal strong market confidence in future Urbit
+
+Duration market
+• Each tranche of visas is its own token: $URBIT, $URBIT-1, $URBIT-2, etc
+• Only $URBIT needs an external market
+• The Urbit contract has an API to convert between tranches
+• Conversion rates are defined by a yield curve
+• The yield curve is implemented by an AMM in the contract
+• Initial curve is set high to reward believers
+
+Star market
+• The (virgin) star price is a derivative of the $URBIT market
+• It can be calculated from the $URBIT price and yield curve
+• A virgin star can be turned in for $URBIT tranches at any time
+• No incentive to act except to sell or adjust duration
+• The contract can auction any star or planet at any time
+• For (a) active stars, (b) “vanity” star or planet names
+
+Planet market
+• Now you can buy a planet on chain
+• The price is always 1 $URBIT
+• The planet is issued from a star in the contract
+• Hosting services have an incentive to buy issuing stars
+• Stars outside the contract also burn 1 $URBIT per new planet
+• Old planets are grandfathered and don’t need a visa
+
+Structural overview
+• Azimuth Labs is a new nonprofit under CEO Christopher Colby
+• Assets: 4 galaxies from Urbit Foundation, 4 from Tlon, 255 stars from CY
+• Mission: build and evangelize the Urbit namespace (Azimuth)
+• UF changes name to Arvo Foundation and gives us urbit.org
+• For us, Urbit is Azimuth
+• Arvo/Tlon are just applications/features of Azimuth
+
+Product overview
+• Urban Labs exists to grow Urbit as a social network
+• Urbit is wherever people use their Urbit names
+• Many Web2 and Web3 use cases
+• Example: Tailscale for Urbit already being built
+• Labs builds both tools and apps—decentralized or centralized
+• Promoting the network also promotes the token
+• Labs also does the IRL events
+
+Engineering roadmap
+• Stage 0: new Azimuth contract
+• Port naive rollup to Coinbase Base for efficiency/liquidity
+• Stage 1: core social tools
+• Web2 identity: SSO with ship/ticket on urbit.org
+• Web3 identity: ENS subdomain
+• Stage 2: social apps
+• Public plaza on Urbit—Usenet clone?
+
+Fundraising structure
+• Urban Labs starts with 2295 contributed stars
+• 45 stars go into liquidity pool for AMM
+• 250 stars are turned into $URBIT and airdropped to old planets
+• 2000 stars are converted to $URBIT-2 tokens
+• 1000 held by Azimuth Labs treasury
+• 1000 sold for USD to investors in a “soft auction”
+• 1/2 to star contributors, 1/2 to Azimuth Labs
+
+
+Conclusion:  Reliquidize and incentivize the stagnent market, And
+increase the funding runway using tried and (not so true) methods.
+Hope that urbit hardens and popularizes in time.
+
