@@ -84,3 +84,99 @@ Conclusion:  Reliquidize and incentivize the stagnent market, And
 increase the funding runway using tried and (not so true) methods.
 Hope that urbit hardens and popularizes in time.
 
+
+
+Urbit:
+
+- No reason for Normies to join.
+- Star Owners:  %turf, %fund, and pseudo-yuppie clout on the network.
+- No way to value unique sigils, or sell them.
+- What makes a good sigil worth something, rather than a derp
+sigil.
+- galaxy owners care about metcalf's law.
+- how do we get normies or lots of users?
+    - features,
+    - make money.
+    - content.
+
+How did the internet grow in the late 90s?  People realized that clicks
+and searches had calculable value.  They correlated with ads,
+sales, and engagement.,
+
+- Valuing sigils: clicks and engagement, and ML on top or stats 
+to try and figure out what is worth something.
+- in Tlon's app, there would need to be click watching and reporting 
+in a decentralized manner.  The network would need to all figure
+out how much things were valued.
+
+- What else? Shitcoin'ing on Ethereum?
+
+why would anyone pay a lot of money for a cool urbit address / english-sounding name,
+ unless the experience of being on urbit itself is worth something?
+  attempting to find some other value in the address space by itself for the immediate 
+  (or at least sooner than urbit becoming sufficiently valuable) 
+  benefit of address space holders seems like a project that has little to do with urbit?
+=> What can we actually do on urbit?
+    - Chat.
+    - Specialty/Interest Groups (Tlon)
+    - Some Novel Apps (Turf, Radio, etc)
+    - Complex, but very robust system for app development.
+        => Decidedly anti Node.js in its being.
+    - Minute amounts of Azimuth trades (Marketplaces)
+    - Blog, and host servers. Expose blogs to normie-internet (with some work)
+    - Fund other projects and build out.
+    - decentralization, and more control of our data (although limited serivces, comared to web 2/3).
+
+
+
+and seems like a vote of no confidence in urbit as a project)
+
+frankly, designing a product that, to be valuable, needs 
+lots of users because it's 
+also a network, and funding it with the sale of network address 
+space, that, to be valuable, needs to be scarce,  seems odd?
+
+=> Metcalf's Law.
+=> Current point market: scarcity and high demand low supply to keep prices high.
+=> We want normies to pump, but we don't really want to hang out with them (Early Adopter Elitism and Commitment)
+=><=
+
+
+
+
+My Project:  Increase the quality of the network, via my Resonance idea.
+- Mops and Sociopaths can be purged, by great minds thinking alike.
+- It empowers group leaders with maximum strategy and intellect,
+to periodically weed out poor community members.
+    => But this is late stage, when the network is > 100k users, and quality starts to go down.
+
+MP3 File:
+- 64 galaxies set aside to develop arvo, and apps and urbit.
+- This is the urbit foundation.
+- The senate is the galaxy owners. The board oversees the project on behalf of the senate
+- Zenith Plan:  Build a new blockchain.
+- Mayflower Plan: Curtis's Plan.
+- Groundwire Plan:  Comets and Bitcoin Blockchain.
+- In the end, whatever the board decides, they need to convince the senate.
+- The rabble will not be permitted.
+- 15 UF members are left. Some more will be hired. 5 have left so far (including Josh).
+- Who is responsible for hire/fire?  The Executive Director.
+- A lot of UF assets actually owned by Tlon - been some transfers on network to get things more distributed (Karina)
+- claim: They have extended the runway (cash to stay alive)
+    => They had 2 months left. Probably over a year now.
+- Sword/Ares:
+- Mayflower comment: Keep it very simple, dont engage in experimental economics or financial engineering.
+    - rumours pastebins are out of date, things have evolved a lot.
+- Urbit Dev shifted to UF, Tlon focuses on UI products.
+- in the begining: Galen and Curtis used 
+- Star Congress? Need more users.  One day.
+- Inherent value of gal/star v.s other mechanisms of proof of reputation
+    - getting off the Naive Rollup. Allowing a lot of data to flow in the ID. 
+    - individual planets can have "value" (not necessaril Exchange value), that are valuable because of their store of data
+- Competing incentives: Tlon wants planets to be free, vs intentions of UF to make points value.
+    - Reputation has economic value, but not transferable value!!  
+- Issak: Sibil attacks are avoided by not having the cost of planets be zero.  There are attacks that can be done 
+even if the average price of a planet is over $1.
+    - Gary: leverage sponsorship to mitigate spam and attacks, if it occurs
+    -  sponsorship is also used as a filtering mechanism in the future. A reliable sponsor star has incentives to not
+    allow for bullshit or spam.

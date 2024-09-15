@@ -492,14 +492,29 @@ $%  $:  %larva
 
 - An urbit ID, in addition to being an @p with a sponsor, uses public-key cryptography to verify its identity, and generate an AES-256 symmetric key for two ships to send messages to one another.
 
-- Number of Points:
-    - Galaxies: $2^{8}$, Stars: $2^{16}$, Planets: $2^{32}$, Moons: $\approx 2^{64} - 2^{32}$, Comets: $\approx 2^{128} - 2^{64}$.  
-    - moons and comets are not even powers of two because of "superior points"[?]
-    - Basically, our entire address space is $2^{128}$ points, and each point class is listed in order of most important to least important. So Galaxies are the first 256 points, and the last half of the address space is all Comets.
+#### Point Numbering and Ordering:
+- Points are arranged in a massive $2^128$, in linear sequence, from galaxies all the way to the last possible comet.
+- **Number of Points:**
+    - Galaxies: $2^{8}$ 
+        - Start: ~zod (0)
+        - End: ~fes (255)
+    - Stars: $2^{16} - 2^{8}$
+        - Start: ~marzod (256)
+        - End: ~fipfes (65535)
+    - Planets: $2^{32} - 2^{16}$,
+        - Start: ~dapnep-ronmyl (65536)
+        - End: ~dostec-risfen (4294967295)
+    - Moons: $2^{64} - 2^{32}$.
+        - Start: (for zod) ~doznec-dozzod-dozzod (4294967296)
+        - End: ~fipfes-fipfes-dostec-risfen (18446744073709551615)
+    - Comets: $2^{128} - 2^{64}$.
+        - Start: (for zod)  ~doznec--dozzod-dozzod-dozzod-dozzod (18446744073709551616)
+        - End: ~fipfes-fipfes-fipfes-fipfes--fipfes-fipfes-fipfes-fipfes (340282366920938463463374607431768211455)
+    
+- With the exception of Galaxies, no band is an even power of two, because of the carveouts of **superior points**.  - Basically, our entire address space is $2^{128}$ points, and each point class is listed in order of most important to least important. So Galaxies are the first 256 points, and the last half of the address space is all Comets.
 
-- Old class system:  Czar, King, Duke, Earl, Pawn.
-
-- Key Storage Per Point Object:
+- **Old class system:**  Czar, King, Duke, Earl, Pawn.
+- **Key Storage Per Point Object:**
     - Galaxies have their Azimuth PKI loaded on a ship boot.  This is provided by the Urbit Foundation.
     - Stars and Planets:  Have there Azimuth PKI data stored in Ethereum, Jael fetches it from Ethereum and stores it locally.  This data is renewed on breach.
     - Moons:  Azimuth PKI data is stored locally in their planet's Jael database.  Planet has full control over their private key.
@@ -548,7 +563,7 @@ Bridge is a TypeScript Front end, connected to a python backend, that interacts 
 - A breach occurs when a ships event log becomes corrupted, or when it chooses to factory reset itself.  This means it cannot attest to its current identity online, and so when a breach is formally signalled, the network "forgets" the old ship, and treats it like a new startup.
 - Continutiy: how ships remember the order of their own network messages, and the network messages of others.  This is stored in their own personal event log.
 - The factory reset is not an individual action.  The network decides to treat a ship like it is brand new - and forgets its previous history.
-    - practically, everyones Ames peer-state entries and Jael keys for the ship, are erased and reset!
+    - practically, everyones Ames `peer-state` entries and Jael keys for the ship, are erased and reset!
 - Transferring an azimuth point to another ETH address also initiates a factory reset.
 - Breach = factory-reset.  Don't get confused by the archaic terminology.
 - Note that a breach is performed on Bridge, not on the Dojo. So a ship actually does not know about its own breach!  When it is at its weakest, the network will come for it when it least expects it.
@@ -566,20 +581,29 @@ Bridge is a TypeScript Front end, connected to a python backend, that interacts 
     - **Note:** Reads on the Ethereum network are free, only WRITES require gas. So
     a .js library can just query an ETH node, and pull the data you want.
 
-2) 
 
-Q) If Comets have no Azimuth PKI entry, how do they work? DO they just relay through the UF list of known galaxies after Metamorphasis?
 
-Q)  For Moons and Comets, they are not even powers of two because of the "superior points".  What are they?
+2) If Comets have no Azimuth PKI entry, how do they work? DO they just relay through the UF list of known galaxies after Metamorphasis?
+
+3)  For Moons and Comets, they are not even powers of two because of the "superior points".  Investigate the carevouts of the bands more carefully:
+    - Lets do this exercise for Moons, as it is a smaller band.
+        - The first moon at $2^{32}$ is ~doznec-dozzod-dozzod (4294967296)
+        - The next point at $2^{32} + 1$ is ~doznec-dozzod-doznec, which is a moon of nec.
+        - If we go to $2^{32} + 256$, we expect to see the first moon of ~marzod. Indeed, we do: ~doznec-dozzod-marzod
+        - If we go to $2^{32} + 65536$, we expect to leave the star band for the ~dozzod moons, and find the first planet moon: ~doznec-dapnep-ronmyl. Which we see.
+        - Finally, if we try $2^{32} + 2^{32}$, we reach the next moon of zod, which is at $2^{33}$, which is: ~dozbud-dozzod-dozzod.
+        - The cycle continues....
+    - So a basic moon is defined, and iterated for all $2^{32}$ points (galaxies, stars and planets), and it keeps going until $2^{64}$.
+
 
 Q)  In the boot sequence (during MM), how do we map galaxy names to ip addresses? Walk through the call sequence. Are the eth-*.hoon libraries used?
 
-Q) Does the urbit binary, or anything in the %base desk consider Censures.sol? Or is it just a wanted posting online for bad actors? Does anyone check.
+Q) Does the urbit binary, or anything in the %base desk consider Censures.sol? Or is it just a wanted posting online for bad actors? Does anyone check???
 
 
 ## Understandng Jael
 
-- Jael is the arvo vane that queries Azimuth.  It does not do this directly, but uses the %azimuth agent and eth-watcher files to run a thread to query the block chain, and return urbit ID data for various requests.
+- Jael is the arvo vane that queries Azimuth.  It does not do this directly, but uses the %azimuth agent and %eth-watcher files to run a thread to query the blockchain, and return urbit ID data for various requests.
 
 ### /sys/lull interface defintions:
 
@@ -766,7 +790,7 @@ ii) `.^(@p %j /=sein=/~nodsup-labnux)`
 
 Gets the ships sponsor (original spawner), not escaped.
 
-iii)  .^((list @p) %j /=saxo=/~sampel-palnet)
+iii)  `.^((list @p) %j /=saxo=/~sampel-palnet)`
 
 Gets sponsorship chain in a progressive cell.
 
@@ -795,11 +819,10 @@ Run `.^(@ud %j /=step=/(scot %p our))` to see that we are on step 0 .
 We pass a %step task to jael, by using the `|pass` generator. `|pass [%j %step ~]`
 
 
-Q:  What does a "point" look like? Just a hex number?
+Q:  What does a "point" look like? Is it just a number?
 
 Q: Why is our code only 64 bits? Isn't that low security?
  - - (!!) The symmetric key for each peer is not encrypted! You can use a scry to look at a particular one.  Any user that hacks into your console can find this key, and eavesdrop. 
-
 
 
 #### Azimuth Data Flow:
@@ -809,6 +832,161 @@ Q: Why is our code only 64 bits? Isn't that low security?
 - So data from Azimuth flows from %azimuth and the %eth-watcher apps.  
 
 
+## Examining Azimuth in Detail[Z]:
+
+### Summary:
+
+- Azimuth is the most diffuse of all of three subjects of this document.  It involves different gall apps, libraries, and the Ethereum blockchain itself, running .sol smart contracts, to function.  
+- It has an immutable ledger providing a source of truth, of ownership and state data for every urbit point.
+- It also includes Bridge, used to submit L2 transactions. 
+
+- Our main Gall Agents:
+    - **%azimuth:**  obtains and holds PKI state.
+    - **%azimuth-rpc:** RPC-API for Azimuth, utilizing %json
+    - **%eth-watcher:**  Event Log for Ethereum events.
+    - **%roller:** L2 Extension, for submitting batches of transactions.
+    - **%roller-rpc:** JSON rpc-api for the %roller addon.
+
+- There is also a /lib/naive.hoon support library.
+
+###  Naive.hoon:
+
+- used by the various azimuth hoon files - stores  structures, eth function addresses and other information.
+- about 1000 lines.
+- 
+###  %Azimuth Gall App:
+
+- located at `%base/app/azimuth.hoon` 
+- Imports: eth-watcher, ethereum, azimuth (lib), naive
+- exposes the jael namespace for shorter names.
+
+#### State Structure:
+
+- first, lets look at its state:
+
+```
++$  app-state
+  $:  %7
+      url=@ta
+      =net
+      refresh=_~m5
+      whos=(set ship)
+      nas=^state:naive
+      own=owners
+      spo=sponsors
+      logs=(list =event-log:rpc:ethereum)
+      sap=snap-state
+  ==
+```
+
+- `whos` is the set of ships known about by our Azimuth, 
+- `nas` is PKI state, which is d
+- `own` is a jug of ETH addresses, mapped to ships owned by those addresses.
+- `logs` is our Azimuth specific event log.
+
+- Note, there are seven versions of state, incrementally built up over time.
+
+#### Scrying:
+
+- We can use `++on-peek` to examine our state using standard %x read scries. List of scries is below:
+
+```
+  ++  on-peek
+    |=  =path
+    ^-  (unit (unit cage))
+    |^
+    ?+  path  (on-peek:def path)
+        [%x %logs ~]       ``noun+!>(logs.state)
+        [%x %nas ~]        ``noun+!>(nas.state)
+        [%x %dns ~]        ``noun+!>(dns.nas.state)
+        [%x %own ~]        ``noun+!>(own.state)
+        [%x %spo ~]        ``noun+!>(spo.state)
+        [%x %refresh ~]    ``atom+!>(refresh.state)
+        [%x %point @ ~]    ``noun+(point i.t.t.path)
+        [%x %last-snap ~]  ``noun+!>(sap.state)
+    ==
+```
+#### Pokes:
+
+- The `++on-poke` arm is quite straightforward. There are two types of mark:
+
+- %noun marks:  For getting Azimuth to run refresh actions.  
+    - %rerun:
+    - %resub:
+    - %resnap:
+
+- %azimuth-pokes:  Direct pokes that manipulate Azimuth. Such as:
+
+- `%load:`  loads snapshot data, which updates our state object, filling in the own, nas, etc fields. Strangely, the logs.state field is made sig (~)
+- `%listen :` Calls ++listen-to-azimuth, which sends a %pass card to jail with teh %listen tag.
+    - in the ++call arm of Jael, the %listen tag sets our ethereum source.
+- `%kick`: is complex. It checks the `dude` structure (registry of app names for gall), and reinstalls our azimuth, and then re-%listens.
+
+#### On Agent:
+
+- we mainly care about %eth-watcher responding to us, as this is pulling ETH state data for us, for use.
+
+#### Support Core and Arms:
+- lots of these arms use the crypto library to generate results.
+- come back to this later [***].
+
+### Examining %eth-watcher:
+
+- located in %base/app/eth-watcher.hoon.
+- This is a small(ish) app, at about 600 lines.
+- imports: spider, etehereum, ethereum-types.
+- Jael namespace imported.
+
+#### Ethwatcher Structure File:
+
+- eth-watcher has a number of structured definitions for its state.
+
+- the main structure is config, which has to do with settings that deal with reading ethereum blocks on-chain:
+
+```
++$  config
+  $:  :: eth node RPC endpoint
+      url=@ta
+      ::  give logs asap
+      eager=?
+      refresh-rate=@dr
+      timeout-time=@dr
+      :: eth block numbers
+      from=number:block
+      to=(unit number:block)
+      :: all relevent contracts in eth
+      contracts=(list address:ethereum)
+      batchers=(list address:ethereum)
+      =topics
+  ==
+```
+- There are action structures, for recieving tagged cells (pokes, responses)
+    - Pokes:
+        - %watch: add a watch dog
+        - %clear: clear a watchdog
+        - Note: each watchdog has a path and a config structure setting.
+    - Diffs:  used to manipulate logs.
+        - %history: fully pulled history
+        - %logs: newly added logs
+
+#### App State:
+
+- Our app is just a  map of paths to dogs: `dogs=(map path watchdog)`, and every dog has a context that can be manipulated, as stipulated in teh /sur file above.
+
+#### Other Notes on Gall Arms:
+
+- `++  on-peek:` Simple scries to look at registered dogs, and their loaded configurations.
+- `++ on-poke:`
+    - can reset watch-dogs, there is logic to dispach a new dog via spider.
+- `++on-agent`: standard boiler plate for dealing with %spider responses (thread-fail and thread done), as well as other facts.
+
+
+1) How can I form scries for %azimuth? Do a few examples.
+
 ### References:
 
 [X] https://chatgpt.com/share/095aa4c3-7ec8-48fc-b449-7238f06c7ede 
+
+[Y]  Chart formlated by ChatGPT
+
+[z]  Summary notes are my further condense dsummarys ofall sections of Azimuth Data Flow on the urbit docs https://docs.urbit.org/system/identity/concepts/flow
