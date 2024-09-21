@@ -1,4 +1,4 @@
-# Understanding Ames, Jael and Azimuth:
+# Understanding Ames, Jael and Azimuth[1]:
 
 The purpose of this repo is to understandhow urbit identities, authentication and networking works across the decentralized network of ships.  By far, Ames is the most complex of the three vanes.
 
@@ -70,7 +70,7 @@ The purpose of this repo is to understandhow urbit identities, authentication an
 
 - Other Notes:
     - Slow-start performs poorly in less-reliable networks (such as wireless), or in older browsers where many short lived connections are created by default.
-    - For ames, our sequence numbers only reset when a ship breaches.
+    - For Ames, our sequence numbers only reset when a ship breaches.
     - No point sending a bunch of packets fast (how do we know the channel is reliable?)
 
 
@@ -82,23 +82,23 @@ The purpose of this repo is to understandhow urbit identities, authentication an
     - So our identity triplet defaults to an IP address, which is used in the UDP packet.
     - Note:  IP addr to @p mapping is ultimately handled outside Ames, in Arvo.  You can see galaxy IP addresses in your boot sequence for your ship.
 - Arvo perspective:  extend %moves across multiple Arvo instances. Vanes inside Arvo talk to other external vanes using %pleas
-- Ames Guarentees:
+- **Ames Guarentees:**
     1) Messages within a flow processed in order.
     2) messages are delivered only once.  The reciever will always give an %ack to let us know.
 - Practically, this all works because we can extend UDP and do our own ECC and packet order management.  It doesn't matter that UDP is a simplistic protocol, just send another datagram!
-- Ames gets public keys from Jael, which gets them from the %azimuth
+- Ames gets public keys from Jael...which gets them from the %azimuth.
 
 ### How Ames Works:
 - Ames is a vane nested inside Arvo, which the urbit OS. Arvo is run in the urbit binary, which itself runs inside Vere.
 - Vere is the interface between urbit and your OS.  It is written in C.  It allows urbit to work with the external world.
 - When Ames sends a packet to another Ames instance on an external machine, what is is really doing is:
-    -  Forming a vane specific packet, and dispatching it to Arvo.
-    -  Arvo packages this packet as a kind of move. These moves are stored in a duct.
-    -  Arvo makes a system call, via Vere, to use your computers TCP/IP/Network stack, and your Ames packet is passed on the 
+    1)  Forming a vane specific packet, and dispatching it to Arvo.
+    2)  Arvo packages this packet as a kind of move. These moves are stored in a duct.
+    3)  Arvo makes a system call, via Vere, to use your computers TCP/IP/Network stack, and your Ames packet is passed on the 
     hardware layer.
-    - All of the above is reversed, so your recipient Ames instance can read the packet.
+    4) All of the above is reversed, so your recipient Ames instance can read the packet.
 
-- Ames will figure out how to split up large pieces of data, and send them as packets.  This is called `++jamming`. Reassembly is `++cueing`
+- Ames will figure out how to split up large pieces of data, and send them as packets.  This is called `++jamming`. Reassembly is `++cueing`.
 -  All sent packets are encrypted with AES-256.
 - For an Ames Packet, the following protocol is outlined for a Header and Body:
 
@@ -263,7 +263,7 @@ Inspect the message pump.  Curiously, it is a vase.
     - [%saxo sponsors=(list ship)]:  our sponsor list report
 
 - We also have a structural definition, to store our peer-state.  There are thousands of peers on the network, so this gets to be quite large!
-- Peer State (some fields of note):
+- `Peer State` (some fields of note):
     - peer-state: a complex cell of the following:
         - symmetric-key
         - life and rift
@@ -401,6 +401,8 @@ $%  $:  %larva
 
 #####  Looking at each Helper Core:
 
+- These cores are nested in each other! They are not independent and juxtaposed at the same level.  The indexing below indicates the level of nesting.
+
 1) ev (Event Handling):
 - Before defintion, there is jet registration with `~%  %per-event  ..trace  ~`
 - This is the largest of the cores (> 1000 lines), handling both task and response events.
@@ -411,15 +413,56 @@ $%  $:  %larva
     - on-hear, the messaging task, has a lot of helper arms and different cases to consider.
     
 
+2) pe (Per-Peer Processing):
+    - This is a huge subcore, that contains `++ mi` and `++ mu`.
+    - starts off as a door, being fed a `peer-state` and a `channel`.
+    - a channel is a composite structure that stores common crypto-core, symmetric key, and sponsor/raft data.
+    - lots of helper arms to deal with ossuary and its manipulation (++bind-duct, ++is-corked).
+    - so this really processes tasks and gifts, on a particular peer.
+    - Interestingly, the commet attestaion code is located in this vane:
 
-2) mi (Message Recieve):
+```
+          ::  resend comet attestation packet if first message times out
+          ::
+          ::    The attestation packet doesn't get acked, so if we tried to
+          ::    send a packet but it timed out, maybe they didn't get our
+          ::    attestation.
+          ::
+          ::    Only resend on timeout of packets in the first message we
+          ::    send them, since they should remember forever.
+          ::
+          =?    event-core
+              ?&  ?=(%pawn (clan:title our))
+                  =(1 current:(~(got by snd.peer-state) bone))
+              ==
+            =/  =blob  (attestation-packet [her her-life]:channel)
+            (send-blob for=| her blob `known/peer-state)
 
-3) mu (Message Send):
+```
 
-4) pe (Per-Peer Processing):
+3a) mi (Sink Message Reciever Core):
+    - starts off as a door, given a `bone` and `message-sink-state` to process.
+    - sink arm is just local this (the subject .)
+    - mainly handles `message-sink tasks`
+    - deals with a lot of %acks and %nack logic, that are referenced by various bones (++check-pending-acks)
+    - lots of logic and case checking - lots of different scenarios can occur.
 
-5) pu (Packet Pump)
+4a) fi (Fine Remote Scry Core):
+    - Lots of small, well packaged pieces of functionality in this sub-core.
+    - ++keys core uses crypto-core library, to verify, sign messages, etc.
+    - Lots of helpers:
+        - custom scry interface, for other ships or entities to subscribe/unsubscribe.  Will handle acks and nacks, has its own retransmit logic, and cals %behn to set timers for its next message send.
 
+
+3b) mu (Pump Message Send) Core::
+    - starts with a door, being fed a bone and message-pump-state
+    - specifically dispatches a set of messages,one by one.
+
+4b) pu (Packet Pump)
+    - This is nested in the `++mi` core.
+
+
+- The code for all of this is quite complicated. It appears to be interrelated, and modularized to handle different queues of messages. It isn't of use to comprehend 2000 lines of dense code, so the above summaries are all that are done.
 
 
 
@@ -433,7 +476,7 @@ $%  $:  %larva
 
 ### Pre-requisite Knowledge:
 
-#### ERC-721 Notes[X]:
+#### ERC-721 Notes[2]:
 
 - **ERC-721** is a popular Ethereum token standard used for creating **non-fungible tokens (NFTs)**.
 - ERC-721 defines several mandatory functions that contracts must implement. These functions ensure interoperability between different platforms and wallets. Below are the key functions:
@@ -485,9 +528,6 @@ $%  $:  %larva
 
 #### Layer 2 Urbit Points:
 
-<TDB>
-
-
 - Jael is a formal vane. Azimuth refers to the collection of smart contracts on the Ethereum blockchain, that facilitates urbit identities and acts as a source of truth for ownership.
 
 - An urbit ID, in addition to being an @p with a sponsor, uses public-key cryptography to verify its identity, and generate an AES-256 symmetric key for two ships to send messages to one another.
@@ -516,9 +556,11 @@ $%  $:  %larva
 - **Old class system:**  Czar, King, Duke, Earl, Pawn.
 - **Key Storage Per Point Object:**
     - Galaxies have their Azimuth PKI loaded on a ship boot.  This is provided by the Urbit Foundation.
+        - when you see galaxies and there IP addresses during MM boot, this is what we mean.
     - Stars and Planets:  Have there Azimuth PKI data stored in Ethereum, Jael fetches it from Ethereum and stores it locally.  This data is renewed on breach.
     - Moons:  Azimuth PKI data is stored locally in their planet's Jael database.  Planet has full control over their private key.
     - Comets have no Azimuth PKI data - life and rift is always zero. No azimuth data available.  They apparently "self-attest", and are recognized by all higher rank points on the network.  There life and raft number are both zero.
+        - See the Ames `++ pe` core above, which shows the self-attestation in action.
 
 
 ### Azimuth and Ecleptic:
@@ -564,8 +606,10 @@ Bridge is a TypeScript Front end, connected to a python backend, that interacts 
 - Continutiy: how ships remember the order of their own network messages, and the network messages of others.  This is stored in their own personal event log.
 - The factory reset is not an individual action.  The network decides to treat a ship like it is brand new - and forgets its previous history.
     - practically, everyones Ames `peer-state` entries and Jael keys for the ship, are erased and reset!
-- Transferring an azimuth point to another ETH address also initiates a factory reset.
-- Breach = factory-reset.  Don't get confused by the archaic terminology.
+    - this is signaled and initiated by the ship owner itself, which propogates through the network. Everyone "forgets and resets" them in peer-state.
+- Transferring an azimuth point to another ETH address also initiates a factory reset, by default.
+- **Breach = factory-reset**.  Don't get confused by the archaic terminology.
+    -  There are many reasons for a breach, but the solution is always the same. 
 - Note that a breach is performed on Bridge, not on the Dojo. So a ship actually does not know about its own breach!  When it is at its weakest, the network will come for it when it least expects it.
 
 
@@ -578,12 +622,15 @@ Bridge is a TypeScript Front end, connected to a python backend, that interacts 
 1) Execute the read function on Etherscan.
     - Done for Censure, Azimuth, and a few other contracts.
     - Click on the Contract Tab -> READ, and interact with the contract live.
-    - **Note:** Reads on the Ethereum network are free, only WRITES require gas. So
-    a .js library can just query an ETH node, and pull the data you want.
-
-
+    - **Note:** Reads on the Ethereum network are free, only WRITES require gas. So a .js library can just query an ETH node, and pull the data you want.
 
 2) If Comets have no Azimuth PKI entry, how do they work? DO they just relay through the UF list of known galaxies after Metamorphasis?
+    -  Quite simply, a comet will use a galaxy as a hub, and try to send messages to different ships.  On a key exchange, the comet will self-attest, and a modified comet entry will be put in the `peer-state` structure.
+    - As the comet exists and interacts for longer and longer, it appears in the state of other ships around the network.  When a comet dies, it is not forgotten.
+    - Other Notes:
+        - Comets can't spawn moons.
+        - The network keys given to them are kept for their lifespan.
+
 
 3)  For Moons and Comets, they are not even powers of two because of the "superior points".  Investigate the carevouts of the bands more carefully:
     - Lets do this exercise for Moons, as it is a smaller band.
@@ -593,13 +640,24 @@ Bridge is a TypeScript Front end, connected to a python backend, that interacts 
         - If we go to $2^{32} + 65536$, we expect to leave the star band for the ~dozzod moons, and find the first planet moon: ~doznec-dapnep-ronmyl. Which we see.
         - Finally, if we try $2^{32} + 2^{32}$, we reach the next moon of zod, which is at $2^{33}$, which is: ~dozbud-dozzod-dozzod.
         - The cycle continues....
-    - So a basic moon is defined, and iterated for all $2^{32}$ points (galaxies, stars and planets), and it keeps going until $2^{64}$.
+        - The very last moon, which occurs at $2^{64} - 1$, is ~fipfes-fipfes-dostec-risfen
+        - Indeed, if we go to $2^{64}$, we see the very first comet of zod, ~doznec--dozzod-dozzod-dozzod-dozzod
+    - So a basic moon is defined, and iterated for all $2^{32}$ points in the (galaxies, stars and planets) band., and it keeps going until $2^{64}$.
 
 
 Q)  In the boot sequence (during MM), how do we map galaxy names to ip addresses? Walk through the call sequence. Are the eth-*.hoon libraries used?
 
-Q) Does the urbit binary, or anything in the %base desk consider Censures.sol? Or is it just a wanted posting online for bad actors? Does anyone check???
+- We are referring to the folloiwing lines in the boot sequence:
+```
+ames: czar dev.urbit.org. ip .35.227.173.38
+ames: czar lur.urbit.org. ip .35.233.250.88
+ames: czar def.urbit.org. ip .35.230.109.40
+```
+- These are not present in Ames!  These are (likely from vere), and are printed out by one of the .c files (such as dawn.c or king.c).  There is a network request that fetches the galaxy table from somewhere.
 
+
+Q) Does the urbit binary, or anything in the %base desk consider Censures.sol? Or is it just a wanted posting online for bad actors? Does anyone check???
+    - A simple VS Code folder serach reveals nothing.  Its just a wanted list online, that isn't currently checked.  Star and Galaxy owners need to check themselves.
 
 ## Understandng Jael
 
@@ -626,8 +684,7 @@ Q) Does the urbit binary, or anything in the %base desk consider Censures.sol? O
     - [%resend ~]: resend private keys
     - [%ruin ships=(set ship)] : pretend breach (?)
  
-- there are also a lot of group theory definitions, to do elliptic curve stuff. Interesting....
-- Monoid, rings and groupoids are mentioned.
+- there are also a lot of group theory definitions, to do elliptic curve stuff.  Monoid, rings and groupoids are mentioned.
 
 
 ### Structure of Jael (/sys/vane/jael):
@@ -806,7 +863,7 @@ An example of the output for my ship is below:
 
 ```
 
-For a well broken in ship with many interactions with different points, this list is huge.
+For a well broken in ship with many interactions with different points, this list is huge, and will blow up your console.
 
 3)  Examine the %step exercise in the Jael docs:
 
@@ -832,7 +889,7 @@ Q: Why is our code only 64 bits? Isn't that low security?
 - So data from Azimuth flows from %azimuth and the %eth-watcher apps.  
 
 
-## Examining Azimuth in Detail[Z]:
+## Examining Azimuth in Detail[4]:
 
 ### Summary:
 
@@ -981,12 +1038,13 @@ Q: Why is our code only 64 bits? Isn't that low security?
 - `++on-agent`: standard boiler plate for dealing with %spider responses (thread-fail and thread done), as well as other facts.
 
 
-1) How can I form scries for %azimuth? Do a few examples.
 
 ### References:
 
-[X] https://chatgpt.com/share/095aa4c3-7ec8-48fc-b449-7238f06c7ede 
+[1]  Lots of the notes for this document come from the Core Academy Notes, specifically [ca8](https://github.com/hoon-school/core-academy-2023/blob/master/ca08.md) and [ca13](https://github.com/hoon-school/core-academy-2023/blob/master/ca13.md)
 
-[Y]  Chart formlated by ChatGPT
+[2] https://chatgpt.com/share/095aa4c3-7ec8-48fc-b449-7238f06c7ede 
 
-[z]  Summary notes are my further condense dsummarys ofall sections of Azimuth Data Flow on the urbit docs https://docs.urbit.org/system/identity/concepts/flow
+[3]  Chart formulated by ChatGPT
+
+[4]  Summary notes are my further condensed summary of all sections of Azimuth Data Flow on the urbit docs https://docs.urbit.org/system/identity/concepts/flow

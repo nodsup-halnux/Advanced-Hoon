@@ -155,3 +155,55 @@ $$BP = [Star LD Part Rate]*[FTA] \sum_{j=1}^{4} ([Stars locked for (5-j) years]*
 - Private Channels (for Subscribers).
 - Planet Dispenser:  This is a Zenith Contract, star planets paid for in $U in an AMM.
 
+### Outstanding Questions:
+
+- Will the Zenith L2 Layer correct for the "Naive Rollup" issues, and allow old L2 planets to migrate back, or at least to the new L2 chain?
+
+- How are transactions by galaxies batched? Do they hand it over to stars...who hand them back a batch with their own transactions back to them.  Must another galaxy approve a galaxies transactions?
+
+- For owners with multiple stars, it seems like a prudent move would be to deposit some stars in LockDrop, and keep some back for later.
+
+- What options are there for star owners that don't participate in the LockDrop? Are they kept out of the new economy? Will the Old Azimuth contracts be kept alive, or sunsetted as Zenith matures?
+
+- For the Distribution of $U, there is an extreme difference in allocation between AF and UF (18% vs 1%). We also see this with the proposed transaction tax (4% vs 1%, respectively)  What was the reasoning for this? 
+
+
+###  Second Wartime Address:
+
+- Tlon Runs product experience. 
+- UF pushes for Arvo + Azimuth
+- Zorp - Nockchain
+    - relationship:  zkPoW which uses Nock.
+    - Nock is a picolisp that allows us to diagonalize a alg -> number
+- Lots of people moving around (Tlon, Zorp, RH, etc...)
+- Groundwire -> port urbit PKI to bitcoin ordinals and chain.
+    - making comets rekeyable.
+    - very equalizing (nearly infinite comets).
+- note: Vaporwave was not mentioned!
+- This ecosystem is complicated.
+- promoting urbit as a society.
+    - decentralized computing and identity.
+- Competition (Urbit decentralized name space (users))
+    - Farcaster. and ENS
+        - Farcaster is basedon Twitter, with an ENS decentralized names.
+    -  you can try to call an ETH address, but it only has a 1% change that the app is installed. Not an issue.
+-  our problem:
+    - as we scale to larger levels, our decentralizeation will rear different core problems.  From connecting in time, to dealing with spam, to dealing with the block chian, to system wide upgrades...Each 10x will be a challenge and require technical challenges to be solved.
+    - captive app, or captive identity
+- difficult:  a decentralized system that behaves (performs) like a normal web 2.0 system.
+
+- 2nd area:  contracts and blockchain stuff.
+- 3rd Area:  
+
+- 3 Directions for TL user interfaces
+    - Landscape, Bridge, and Sky (shurbbery namespace browser).
+
+- economics of operating a star.
+    - its hard.
+    - you can't value it outside of its planets, and what it hosts/sponsors.
+
+- Urbit Tailscale infrastructure.
+    - there is an urbit company building code for tailscale, using the urbit namespace and stack.
+-  subassembly.
+    - talk about goernnance.
+    - 
